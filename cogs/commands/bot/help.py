@@ -8,26 +8,6 @@ from discord.ui import Select, View, Button
 from db import *
 
 
-def get_prefix(guild):
-	with open('prefix.json', 'r') as f:
-		cache = json.load(f)
-
-	guild = str(guild)
-
-	if guild in cache:
-		prefix = cache[guild]
-	else:
-		cur.execute(f"SELECT prefix FROM Prefix WHERE guild = '{guild}'")
-		prefix = cur.fetchone()
-		prefix = prefix[0]
-		cache[str(guild)] = prefix
-
-		with open('prefix.json', 'w') as g:
-			json.dump(cache, g)
-
-	return prefix
-
-
 def check_field(ctx, cog, _client):
 	cog = cog.lower()
 	# print(f"Author id - {ctx.author.id}\nAll Ids - {_client.owner_ids}")
@@ -70,6 +50,7 @@ class Help(Cog):
 	def __init__(self, client):
 		self.client = client
 
+
 	def get_all_command(self):
 		aliases = {}
 		for command in self.client.commands:
@@ -77,6 +58,7 @@ class Help(Cog):
 			for i in command.aliases:
 				aliases[f'{i}'] = str(command)
 		return aliases
+
 
 	async def cmd_help(self, ctx, command):  # Makes the embed
 		_aliases = f'`{command}`'
@@ -98,13 +80,9 @@ class Help(Cog):
 
 		await ctx.send(embed=em)
 
-	@commands.command(
-		name="help",
-		aliases=['h'],
-		usage="[command/category]",
-		help="Get help on a command or the Bot!")
+
+	@commands.command(name="help", aliases=['h'], usage="[command/category]", help="Get help on a command or the Bot!")
 	async def help(self, ctx, *, command_name=''):
-		prefix = get_prefix(ctx.guild.id)
 		working_cogs = get_working_cogs(ctx, self.client)
 
 		if command_name.lower() in self.get_all_command():
@@ -117,14 +95,17 @@ class Help(Cog):
 		url = "www.google.com"
 
 		all_page_description = f'**Available command Categories -**\n\n'
+
 		for x in working_cogs:
 			all_page_description = all_page_description + f"● **{x.capitalize()}**\n"
+
 		all_page_description += "\n Select command category below for more details.."
 
 		all_page = discord.Embed(
 			description=all_page_description,
 			color=0xf2cb7d,
 		)
+
 
 		async def my_select_view_timeout():
 			my_select.disabled = True
@@ -136,6 +117,7 @@ class Help(Cog):
 
 		for i in range(len(working_cogs)):
 			select_options[str(i)] = working_cogs[i]
+
 
 		def index_commands(value):
 			command_list = []

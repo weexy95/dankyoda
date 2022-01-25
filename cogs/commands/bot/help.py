@@ -114,7 +114,7 @@ class Help(Cog):
 			return
 
 		# A custom url for when a user clicks on a command
-		url = "www.google.com"
+		url = "https://www.google.com"
 
 		all_page_description = f'**Available command Categories -**\n\n'
 		for x in working_cogs:

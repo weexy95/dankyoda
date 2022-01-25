@@ -3,7 +3,6 @@ import random
 import discord
 import requests
 
-
 from discord.ext import commands
 from discord.ext.commands import cooldown, BucketType, Cog
 

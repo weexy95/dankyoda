@@ -1,6 +1,9 @@
 import os
 import sys
 import json
+import discord
+
+from utils.colors import *
 
 
 def get_config():
@@ -13,30 +16,22 @@ def get_config():
 
 
 def load_commands(bot):
-	blacklisted_cogs = ["__pycache__"]
-	blacklisted_commands = ['balance', 'help']
+	blacklisted_cogs = []
+	cogs = [
+		'help',
+		'economy'
+	]
 
-	for folder in os.listdir("cogs/commands/"):
-		if os.path.isdir(f"cogs/commands/{folder}"):
-			if folder in blacklisted_cogs:
-				print(f"Skipped Command Cog: {folder}")
-
-			for command in os.listdir(f"cogs/commands/{folder}"):
-				if command.endswith(".py"):
-					cmd = command[:-3]
-
-				if cmd in blacklisted_commands:
-					print(f"Skipped Command: {cmd}")
-					pass
-
-				else:
-					try:
-						bot.load_extension(f"cogs.commands.{folder}.{cmd}")
-						print(f"Loaded command: '{cmd}'")
-
-					except Exception as e:
-						exception = f"{type(e).__name__}: {e}"
-						print(f"\nFailed to load Command: {cmd} from Cog {folder}\n{exception}")
+	for cog in cogs:
+		if cog in blacklisted_cogs:
+			print(f"{t_yellow}Skipped cog: {cog} {t_white}")
+		else:
+			try:
+				bot.load_extension(f"cogs.commands.{cog}")
+				print(f"Loaded cog: {cog}")
+			except Exception as e:
+				exception = f"{type(e).__name__}: {e}"
+				print(f"{t_red}Failed to load cog: cogs/commands/{cog}\n{exception} {t_white}")
 
 
 def load_events(bot):
@@ -47,7 +42,7 @@ def load_events(bot):
 			blacklisted_ext = ["on_command_error"]
 
 			if extension in blacklisted_ext:
-				print(f"Skipped event: {extension}")
+				print(f"{t_yellow}Skipped event: {extension}{t_white}")
 
 			else:
 				try:
@@ -56,4 +51,4 @@ def load_events(bot):
 
 				except Exception as e:
 					exception = f"{type(e).__name__}: {e}"
-					print(f"\nFailed to load event {extension}\n{exception}")
+					print(f"{t_red}Failed to load event {extension}\n{exception}{t_white}")

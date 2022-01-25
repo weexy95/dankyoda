@@ -14,39 +14,6 @@ from dotenv import load_dotenv
 """
 
 
-def create_prefix(guild):
-	cur.execute(f"INSERT INTO Prefix(guild, prefix) VALUES ('{guild.id}','{prefix}')")
-	print(f"Created config for new server -> {str(guild)}, ID -> {guild.id}")
-	conn.commit()
-
-
-def get_prefix(_client, message):
-	"""
-	Function to get prefix for a guild
-	"""
-	try:
-		fe = open('prefix.json', 'r')
-		cache = json.load(fe)
-
-		guild = str(message.guild.id)
-		if guild in cache:
-			# We don't want to call the database every single time
-			prefix = commands.when_mentioned_or(cache[guild])(_client, message)
-			return prefix
-
-		else:
-			cur.execute(f"SELECT prefix FROM Prefix WHERE guild = '{str(message.guild.id)}'")
-			prefix = cur.fetchone()
-			cache[str(guild)] = prefix[0]
-			# So that it gets stored in the cache
-			with open('prefix.json', 'w') as f:
-				json.dump(cache, f, indent=4)
-
-			return commands.when_mentioned_or(prefix[0])(_client, message)
-	except TypeError:
-		create_prefix(message.guild)
-
-
 def get_config():
 	if not os.path.isfile("config.json"):
 		# sys.exit("'config.json' not found! Please add it and try again.")
@@ -117,7 +84,7 @@ config = get_config()
 """
 
 bot = commands.Bot(
-	command_prefix=get_prefix,
+	command_prefix=config["bot_prefix"],
 	intents=intents,
 	case_insensitive=True,
 	allowed_mentions=discord.AllowedMentions(everyone=False),

@@ -8,26 +8,6 @@ from discord.ui import Select, View, Button
 from db import *
 
 
-def get_prefix(guild):
-	with open('prefix.json', 'r') as f:
-		cache = json.load(f)
-
-	guild = str(guild)
-
-	if guild in cache:
-		prefix = cache[guild]
-	else:
-		cur.execute(f"SELECT prefix FROM Prefix WHERE guild = '{guild}'")
-		prefix = cur.fetchone()
-		prefix = prefix[0]
-		cache[str(guild)] = prefix
-
-		with open('prefix.json', 'w') as g:
-			json.dump(cache, g)
-
-	return prefix
-
-
 def check_field(ctx, cog, _client):
 	cog = cog.lower()
 	# print(f"Author id - {ctx.author.id}\nAll Ids - {_client.owner_ids}")
@@ -69,6 +49,8 @@ def decorate(command):
 class Help(Cog):
 	def __init__(self, client):
 		self.client = client
+		with open("config.json") as file:
+			self.config = json.load(file)
 
 	def get_all_command(self):
 		aliases = {}
@@ -104,7 +86,7 @@ class Help(Cog):
 		usage="[command/category]",
 		help="Get help on a command or the Bot!")
 	async def help(self, ctx, *, command_name=''):
-		prefix = get_prefix(ctx.guild.id)
+		prefix = self.config["bot_prefix"]
 		working_cogs = get_working_cogs(ctx, self.client)
 
 		if command_name.lower() in self.get_all_command():

@@ -6,24 +6,10 @@ from db import *
 from discord.ext import commands
 
 
-def get_prefix(guild):
-	with open('prefix.json', 'r') as f:
-		cache = json.load(f)
-
-	guild = str(guild)
-
-	if guild in cache:
-		prefix = cache[guild]
-	else:
-		cur.execute(f"SELECT prefix FROM Prefix WHERE guild = '{guild}'")
-		prefix = cur.fetchone()
-		prefix = prefix[0]
-		cache[str(guild)] = prefix
-
-		with open('prefix.json', 'w') as g:
-			json.dump(cache, g)
-
-	return prefix
+def get_prefix():
+	with open("config.json") as file:
+		config = json.load(file)
+	return config['bot_prefix']
 
 
 def usage(command):
@@ -130,7 +116,7 @@ class ErrorHandling(commands.Cog):
 
 		elif isinstance(error, commands.BadArgument):
 			em = discord.Embed(title="Invalid arguments!", color=discord.Color.brand_red(),
-			                   description=f"I think you used the command wrong. For more info, try running: ```{get_prefix(ctx.guild.id)}help {ctx.command}```")
+			                   description=f"I think you used the command wrong. For more info, try running: ```{get_prefix()}help {ctx.command}```")
 			await ctx.send(embed=em)
 			ctx.command.reset_cooldown(ctx)
 			return

@@ -28,8 +28,4 @@ def get_all_data(db):
 
 
 db = database.cursor()
-db.execute(f"SHOW TABLES")
-print(db.get_all_data(db))
-
-# db.execute(f"CREATE TABLE Prefixes (guild VARCHAR(20) PRIMARY KEY, prefix VARCHAR(5))")
 database.commit()

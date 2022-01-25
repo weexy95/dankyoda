@@ -31,6 +31,8 @@ def get_prefix(guild):
 class onReady(commands.Cog):
 	def __init__(self, client):
 		self.client = client
+		with open("config.json") as file:
+			self.config = json.load(file)
 
 	@commands.Cog.listener()
 	async def on_ready(self):
@@ -42,7 +44,7 @@ class onReady(commands.Cog):
 
 		await self.client.change_presence(
 			activity=discord.Activity(
-				name=f'dkd help',
+				name=f"{self.config['bot_prefix']} help",
 				type=discord.ActivityType.listening
 			))
 

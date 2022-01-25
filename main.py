@@ -28,6 +28,7 @@ bot.remove_command("help")
 
 if __name__ == '__main__':
 	load_events(bot)
+	print('')
 	load_commands(bot)
 
 	if not os.path.isfile("config.json"):

@@ -2,28 +2,7 @@ import json
 import random
 
 import discord
-from db import *
 from discord.ext import commands
-
-
-def get_prefix(guild):
-	with open('prefix.json', 'r') as f:
-		cache = json.load(f)
-
-	guild = str(guild)
-
-	if guild in cache:
-		prefix = cache[guild]
-	else:
-		cur.execute(f"SELECT prefix FROM Prefix WHERE guild = '{guild}'")
-		prefix = cur.fetchone()
-		prefix = prefix[0]
-		cache[str(guild)] = prefix
-
-		with open('prefix.json', 'w') as g:
-			json.dump(cache, g)
-
-	return prefix
 
 
 def usage(command):
@@ -50,7 +29,6 @@ class ErrorHandling(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
-
 		if isinstance(error, commands.MissingRequiredArgument):
 			em = discord.Embed(
 				title='Command incomplete!',
@@ -62,9 +40,8 @@ class ErrorHandling(commands.Cog):
 			ctx.command.reset_cooldown(ctx)
 			return
 
-		elif isinstance(error, commands.MissingPermissions):
 
-			# This part is copy-pasted from a different source (I don't remember where.)
+		elif isinstance(error, commands.MissingPermissions):
 			missing = [perm.replace('_', ' ').replace('guild', 'server').title() for perm in error.missing_permissions]
 
 			if len(missing) > 2:
@@ -80,6 +57,7 @@ class ErrorHandling(commands.Cog):
 			await ctx.reply(embed=em, mention_author=False)
 			return
 
+
 		elif isinstance(error, commands.MemberNotFound):
 			not_found = [
 				"**What are you talking about??** \n\nNo such person exists on this server...",
@@ -93,6 +71,7 @@ class ErrorHandling(commands.Cog):
 			await ctx.reply(embed=em, mention_author=False)
 			ctx.command.reset_cooldown(ctx)
 			return
+
 
 		elif isinstance(error, commands.BotMissingPermissions):
 			mp = error.missing_permissions[0]
@@ -111,6 +90,7 @@ class ErrorHandling(commands.Cog):
 					f"I don't have the {mp} permission. F")  # In case the bot doesn't have embed links permission
 			return
 
+
 		elif isinstance(error, commands.CommandOnCooldown):
 			mode = "second(s)"
 			if error.retry_after > 120:
@@ -128,15 +108,20 @@ class ErrorHandling(commands.Cog):
 			await ctx.reply(embed=em, mention_author=False)
 			return
 
+
 		elif isinstance(error, commands.BadArgument):
-			em = discord.Embed(title="Invalid arguments!", color=discord.Color.brand_red(),
-			                   description=f"I think you used the command wrong. For more info, try running: ```{get_prefix(ctx.guild.id)}help {ctx.command}```")
+			em = discord.Embed(
+				title="Invalid arguments!", color=discord.Color.brand_red(),
+				description=f"I think you used the command wrong. For more info, try running: ```plz {ctx.guild.id}help {ctx.command}```"
+			)
 			await ctx.send(embed=em)
 			ctx.command.reset_cooldown(ctx)
 			return
 
+
 		elif isinstance(error, commands.CommandNotFound):
 			return
+
 
 		elif isinstance(error, discord.Forbidden):
 			try:
@@ -150,6 +135,7 @@ class ErrorHandling(commands.Cog):
 			except discord.Forbidden:
 				await ctx.reply("I need the 'Embed Links' permission.")
 				return
+
 
 		else:
 			await ctx.reply(embed=discord.Embed(

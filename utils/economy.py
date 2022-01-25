@@ -107,4 +107,3 @@ class EconomyUser:
                 self.create_account()
             except:
                 return e
-

@@ -14,7 +14,7 @@ def get_config():
 
 def load_commands(bot):
 	blacklisted_cogs = ["__pycache__"]
-	blacklisted_commands = ['balance', 'help']
+	blacklisted_commands = ['balance']
 
 	for folder in os.listdir("cogs/commands/"):
 		if os.path.isdir(f"cogs/commands/{folder}"):

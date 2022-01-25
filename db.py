@@ -5,16 +5,27 @@ from dotenv import load_dotenv
 load_dotenv()
 db_url = os.getenv("DATABASE_URL")
 
-conn = psycopg2.connect(db_url)
+database = psycopg2.connect(db_url)
 print("Opened database successfully")
 
 
-async def get_data(db):
+def get_data(db):
     """
-    Same as db.fetchone()
+    Almost same as db.fetchone()
     """
     for row in db:
         return row[0]
 
+def get_all_data(db):
+    """
+    Almost same as db.detchall()
+    """
+    lst = []
+    for tup in db:
+        lst.append(tup[0])
 
-cur = conn.cursor()
+    return lst
+
+
+db = database.cursor()
+database.commit()

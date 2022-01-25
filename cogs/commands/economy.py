@@ -51,6 +51,8 @@ class Economy(commands.Cog):
         giver = economy.EconomyUser(ctx.author)
         receiver = economy.EconomyUser(user)
 
+        giver.update_status('is_banned', False)
+
         if receiver.get_ban_status() == True:
             return
 

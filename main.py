@@ -15,34 +15,33 @@ from dotenv import load_dotenv
 
 
 def create_prefix(guild):
-	cur.execute(f"INSERT INTO Prefix(guild, prefix) VALUES ('{guild.id}','{prefix}')")
+	db.execute(f"INSERT INTO Prefix(guild, prefix) VALUES ('{guild.id}', 'plz ')")
 	print(f"Created config for new server -> {str(guild)}, ID -> {guild.id}")
-	conn.commit()
+	database.commit()
 
 
-def get_prefix(_client, message):
+def get_prefix(bot, message):
 	"""
 	Function to get prefix for a guild
 	"""
 	try:
-		fe = open('prefix.json', 'r')
-		cache = json.load(fe)
+		f = open('./cache/prefix.json', 'r')
+		cache = json.load(f)
 
 		guild = str(message.guild.id)
 		if guild in cache:
-			# We don't want to call the database every single time
-			prefix = commands.when_mentioned_or(cache[guild])(_client, message)
+			prefix = commands.when_mentioned_or(cache[guild])(bot, message)
 			return prefix
 
 		else:
-			cur.execute(f"SELECT prefix FROM Prefix WHERE guild = '{str(message.guild.id)}'")
-			prefix = cur.fetchone()
+			db.execute(f"SELECT prefix FROM Prefix WHERE guild = '{str(message.guild.id)}'")
+			prefix = db.fetchone()
 			cache[str(guild)] = prefix[0]
-			# So that it gets stored in the cache
-			with open('prefix.json', 'w') as f:
+
+			with open('cache/prefix.json', 'w') as f:
 				json.dump(cache, f, indent=4)
 
-			return commands.when_mentioned_or(prefix[0])(_client, message)
+			return commands.when_mentioned_or(prefix[0])(bot, message)
 	except TypeError:
 		create_prefix(message.guild)
 

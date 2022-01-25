@@ -1,6 +1,5 @@
 import aiohttp
 import discord
-import hex_colors
 
 from discord.ext import commands
 from discord.ext.commands import cooldown, BucketType, Cog

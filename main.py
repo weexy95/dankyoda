@@ -117,7 +117,7 @@ config = get_config()
 """
 
 bot = commands.Bot(
-	command_prefix="plz ",
+	command_prefix=get_prefix,
 	intents=intents,
 	case_insensitive=True,
 	allowed_mentions=discord.AllowedMentions(everyone=False),

@@ -57,7 +57,10 @@ class EconomyUser:
             self.create_account()
             return False
 
-        return bool(status)
+        if status == "True":
+            return True
+        else:
+            return False
 
 
     def get_ban_status(self) -> bool:
@@ -68,7 +71,10 @@ class EconomyUser:
             self.create_account()
             return False
 
-        return bool(status)
+        if status == "True":
+            return True
+        else:
+            return False
 
 
     def update_balance(self, wallet: int = None, bank: int = None):

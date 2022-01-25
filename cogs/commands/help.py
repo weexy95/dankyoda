@@ -1,29 +1,27 @@
-import json
-import os
 import discord
-from cogs.cog_helpers.pages import PaginatorButton, Paginator
+from cogs.cog_helpers.pages import Paginator
 from discord.ext import commands
-from discord.ext.commands import cooldown, BucketType, Cog, slash_command
-from discord.ui import Select, View, Button
+from discord.ext.commands import Cog, slash_command
+from discord.ui import Select, View
 from db import *
 
 
-def check_field(ctx, cog, _client):
+def check_field(ctx, cog, bot):
 	cog = cog.lower()
-	# print(f"Author id - {ctx.author.id}\nAll Ids - {_client.owner_ids}")
+	# print(f"Author id - {ctx.author.id}\nAll Ids - {bot.owner_ids}")
 	if cog == "owner":
-		if ctx.author.id not in _client.owner_ids:
+		if ctx.author.id not in bot.owner_ids:
 			return False
 	return True
 
 
-def get_working_cogs(ctx, client):
+def get_working_cogs(ctx, bot):
 	cogs = []
 	for cog in os.listdir("cogs/commands/"):
 		if os.path.isdir(f"cogs/commands/{cog}"):
 			if cog != "__pycache__":
 				if len(os.listdir(f"cogs/commands/{cog}")) != 0:
-					if check_field(ctx, cog, client):
+					if check_field(ctx, cog, bot):
 						cogs.append(cog)
 	return cogs
 
@@ -46,49 +44,52 @@ def decorate(command):
 		return f"```{command} {args}```"
 
 
+async def cmd_help(ctx, command):  # Makes the embed
+	aliases = f'`{command}`'
+
+	for alias in command.aliases:
+		aliases += f', `{alias}`'
+
+	help = command.description
+
+	if help is None:
+		help = command.help
+
+		if help is None:
+			help = 'No help text provided by developer'
+
+	em = discord.Embed(title=f"{command} info ",)
+
+	em.add_field(name='Description:', value=f"*{help}*", inline=False)
+	em.add_field(name='Usage:', value=decorate(command), inline=False)
+	em.add_field(name='Aliases:', value=aliases, inline=False)
+	em.set_footer(text="Usage Syntax: <required> [optional]")
+
+	await ctx.send(embed=em)
+
+
 class Help(Cog):
-	def __init__(self, client):
-		self.client = client
+	def __init__(self, bot):
+		self.bot = bot
 
 
 	def get_all_command(self):
 		aliases = {}
-		for command in self.client.commands:
+		for command in self.bot.commands:
 			aliases[f'{command}'] = str(command)
 			for i in command.aliases:
 				aliases[f'{i}'] = str(command)
 		return aliases
 
-
-	async def cmd_help(self, ctx, command):  # Makes the embed
-		_aliases = f'`{command}`'
-		for alias in command.aliases:
-			_aliases += f', `{alias}`'
-
-		_help = command.description
-		if _help is None:
-			_help = command.help
-			if _help is None:
-				_help = 'No help text provided by developer'
-
-		em = discord.Embed(title=f"{command} info ",)
-
-		em.add_field(name='Description:', value=f"*{_help}*", inline=False)
-		em.add_field(name='Usage:', value=decorate(command), inline=False)
-		em.add_field(name='Aliases:', value=_aliases, inline=False)
-		em.set_footer(text="Usage Syntax: <required> [optional]")
-
-		await ctx.send(embed=em)
-
-
 	@commands.command(name="help", aliases=['h'], usage="[command/category]", help="Get help on a command or the Bot!")
+	@slash_command()
 	async def help(self, ctx, *, command_name=''):
-		working_cogs = get_working_cogs(ctx, self.client)
+		working_cogs = get_working_cogs(ctx, self.bot)
 
 		if command_name.lower() in self.get_all_command():
 			command_name = self.get_all_command()[f"{command_name}"]
-			command = discord.utils.get(self.client.commands, name=command_name)
-			await self.cmd_help(ctx, command)
+			command = discord.utils.get(self.bot.commands, name=command_name)
+			await cmd_help(ctx, command)
 			return
 
 		# A custom url for when a user clicks on a command
@@ -123,38 +124,47 @@ class Help(Cog):
 			command_list = []
 			for cmd_name in os.listdir(f"cogs/commands/{value.lower()}/"):
 				if cmd_name.endswith(".py"):
-					cmd = self.client.get_command(name=cmd_name[:-3])
+					cmd = self.bot.get_command(name=cmd_name[:-3])
+
 					if cmd is None:
 						continue
+
 					cmd_help = cmd.help
+
 					if cmd_help is None:
-						cmd_help = "No help text provided by developer.."
+						cmd_help = "No help text provided by developer"
+
 					command_list.append([str(cmd), cmd_help])
 			return command_list
 
-		async def paginate(ctx, commands_, value):
-
-			paginator_pages = []
+		async def paginate(ctx, commands, value):
+			pages = []
 			index = 0
+
 			while True:
 				description = ''
+
 				for z in range(0, 7):
 					try:
-						description = description + f"\n **[{commands_[index][0]}]({url})**\n<:reply:928546470662119444>{commands_[index][1]}"
+						description = description + f"\n **[{commands[index][0]}]({url})**\n<:reply:928546470662119444>{commands[index][1]}"
 						index += 1
 					except IndexError:
 						break
+
 				try:
-					__tempvar = commands_[index]
-					page = discord.Embed(title=f"{value.capitalize()} commands -", description=description)
-					paginator_pages.append(page)
+					page = discord.Embed(
+						title=f"{value.capitalize()} commands: ",
+						description=description
+					)
+					pages.append(page)
+
 				except IndexError:
-					page = discord.Embed(title=f"{value.capitalize()} commands -", description=description)
-					paginator_pages.append(page)
+					page = discord.Embed(title=f"{value.capitalize()} commands: ", description=description)
+					pages.append(page)
 					break
 
 			paginator = Paginator(
-				pages=paginator_pages,
+				pages=pages,
 				show_disabled=True,
 				show_indicator=True,
 				disable_on_timeout=True,
@@ -162,23 +172,25 @@ class Help(Cog):
 				custom_view=my_select_view
 			)
 			paginator.customize_button(
-				"prev",
+				button_name="prev",
 				button_emoji="<:left:930372441249808415>",
 				button_style=discord.ButtonStyle.primary
 			)
 			paginator.customize_button(
-				"next",
+				button_name="next",
 				button_emoji="<:right:930372441220472863>",
 				button_style=discord.ButtonStyle.primary
 			)
 
 			await paginator.edit(ctx, message=message)
 
+
 		async def my_select_callback(interaction):
 			value_index = my_select.values[0]
 			value = select_options[str(value_index)].lower()
 
 			my_select.placeholder = value.capitalize()
+
 			if my_select.values[0] == 'x':
 				await interaction.message.edit(embed=all_page, view=my_select_view)
 				return
@@ -187,12 +199,15 @@ class Help(Cog):
 
 			if len(command_list) > 7:
 				await paginate(ctx, command_list, value)
+
 			else:
 				description = ''
+
 				for x in range(len(command_list)):
 					description = description + f"\n **[{command_list[x][0]}]({url})**\n<:reply:928546470662119444>{command_list[x][1]}"
 
 				page = discord.Embed(title=f"{value.capitalize()} commands -", description=description)
+
 				await interaction.message.edit(embed=page, view=my_select_view)
 
 		my_select = Select(
@@ -209,78 +224,21 @@ class Help(Cog):
 
 		if command_name == "" or command_name is None:
 			message = await ctx.send(embed=all_page, view=my_select_view)
+
 		elif command_name.lower() in working_cogs:
 			my_select_view.placeholder = f"{command_name.capitalize()}"
 			category_cmd_list = index_commands(command_name.lower())
 			des = ''
+
 			for x in range(len(category_cmd_list)):
 				des = des + f"\n **[{category_cmd_list[x][0]}]({url})**\n<:reply:928546470662119444>{category_cmd_list[x][1]}"
+
 			page = discord.Embed(title=f"{command_name.capitalize()} commands -", description=des)
 			message = await ctx.send(embed=page, view=my_select_view)
+
 		elif len(command_name) > 0 and command_name.lower() not in self.get_all_command():
 			message = await ctx.send(embed=all_page, view=my_select_view)
 
 
-# async def help(self, ctx, *, command_name=''):
-# 	"""
-# 	List all commands!
-# 	"""
-# 	prefix = get_prefix(ctx.guild.id)
-# 	command_categories = []
-# 	for cog in working_cogs:
-# 		command_categories.append(cog.capitalize())
-#
-# 	if command_name == "" or command_name is None:
-# 		embed = discord.Embed(
-# 			title="Help",
-# 			description="Help on available commands..",
-# 			color=0xf2cb7d,
-# 		)
-# 		embed.set_footer(text=f"Use {prefix}help <category> for more info")
-# 		for cog in working_cogs:
-# 			if await check_field(ctx, cog, self.client):
-# 				commands = []
-# 				help_text = ""
-# 				for command in os.listdir(f"cogs/commands/{cog}"):
-# 					if not command.endswith(".py"):
-# 						continue
-# 					command = command[:-3]
-# 					commands.append(command)
-# 				for command_list_str in commands:
-# 					if command_list_str == "__pycache__":
-# 						continue
-# 					help_text = help_text + f"`{command_list_str}`, "
-# 				embed.add_field(
-# 					name=cog.capitalize(),
-# 					value=help_text[:-2],
-# 					inline=False
-# 				)
-#
-# 		await ctx.send(f"{command_name}", embed=embed)
-# 	elif command_name.startswith("<@") and command_name.endswith(">"):
-# 		embed = discord.Embed(
-# 			title="Bro, are you okay?",
-# 			description="You are supposed to search for command here,\n mentioning someone doesn't make any sense!!"
-# 		)
-# 		await ctx.message.reply(embed=embed)
-# 	elif command_name in command_categories:
-# 		ctx.send(embed=discord.Embed(title="whoops"))
-# 	else:
-#
-# 		if command_name in self.aliases:
-# 			command_name = self.aliases[f"{command_name}"]
-# 		else:
-# 			embed = discord.Embed(
-# 				title="Whoops!",
-# 				description=f"I cannot find any command named `{command_name}`",
-# 				color=0xff3344
-# 			)
-# 			await ctx.send(embed=embed)
-# 			return
-#
-# 		command = discord.utils.get(self.client.commands, name=command_name)
-# 		await self.cmd_help(ctx, command)
-
-
-def setup(client):
-	client.add_cog(Help(client))
+def setup(bot):
+	bot.add_cog(Help(bot))

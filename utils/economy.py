@@ -7,6 +7,8 @@ from db import *
 class EconomyUser:
     def __init__(self, user: discord.User):
         self.user = user
+        self.wallet = self.get_wallet()
+        self.bank = self.get_bank()
 
 
     def create_account(self):

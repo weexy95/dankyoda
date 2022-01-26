@@ -11,6 +11,8 @@ def check_field(ctx, cog, bot):
 	if cog == "owner":
 		if ctx.author.id not in bot.owner_ids:
 			return False
+	if cog == "help":
+		return False
 	return True
 
 
@@ -70,7 +72,6 @@ async def cmd_help(ctx, command):  # Makes the embed
 class Help(Cog):
 	def __init__(self, bot):
 		self.bot = bot
-
 
 	def get_all_command(self):
 		aliases = {}

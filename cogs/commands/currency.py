@@ -35,7 +35,6 @@ class Currency(commands.Cog):
 
         await ctx.reply(embed=em, mention_author=False)
 
-
     @commands.command(name='give', aliases=['share', 'yeet'], help=f"Share your {currency} with your friends", usage="<user> <amount>")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def share_coins(self, ctx, user: discord.Member, amount: int):

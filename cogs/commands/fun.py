@@ -27,7 +27,7 @@ def bool_str(variable):  # Function to convert boolean values to string: Yes/No
 		return 'No'
 
 
-class Owner(commands.Cog):
+class Fun(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.config = startup.get_config()
@@ -180,4 +180,4 @@ class Owner(commands.Cog):
 
 
 def setup(bot):
-	bot.add_cog(Owner(bot))
+	bot.add_cog(Fun(bot))

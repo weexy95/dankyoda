@@ -8,10 +8,9 @@ config = startup.get_config()
 currency = config['economy']['currency']
 
 
-class Economy(commands.Cog):
+class Currency(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
 
     @commands.command(name='balance', aliases=['bal'], help="Get your/user's balance", usage="[user]")
     @commands.cooldown(1, 5, commands.BucketType.user)
@@ -37,7 +36,7 @@ class Economy(commands.Cog):
         await ctx.reply(embed=em, mention_author=False)
 
 
-    @commands.command(name='give', aliases=['share'], help=f"Share your {currency} with your friends", usage="<user> <amount>")
+    @commands.command(name='give', aliases=['share', 'yeet'], help=f"Share your {currency} with your friends", usage="<user> <amount>")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def share_coins(self, ctx, user: discord.Member, amount: int):
         if user == ctx.author:
@@ -53,16 +52,13 @@ class Economy(commands.Cog):
 
         giver.update_status('is_banned', False)
 
-        if receiver.get_ban_status() == True:
+        if receiver.get_ban_status():
             return
 
         if giver.wallet < amount:
-            await ctx.reply("Know your place, peasant", mention_author=False)
+            await ctx.reply("Know your place, peasant. You don't have that much in your wallet!", mention_author=False)
             return
 
 
-
-
-
 def setup(bot):
-    bot.add_cog(Economy(bot))
+    bot.add_cog(Currency(bot))

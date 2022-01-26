@@ -8,7 +8,6 @@ from db import *
 
 def check_field(ctx, cog, bot):
 	cog = cog.lower()
-	# print(f"Author id - {ctx.author.id}\nAll Ids - {bot.owner_ids}")
 	if cog == "owner":
 		if ctx.author.id not in bot.owner_ids:
 			return False
@@ -93,7 +92,7 @@ class Help(Cog):
 			return
 
 		# A custom url for when a user clicks on a command
-		url = "www.google.com"
+		url = "https://www.google.com"
 
 		all_page_description = f'**Available command Categories -**\n\n'
 

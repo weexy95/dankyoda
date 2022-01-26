@@ -17,6 +17,8 @@ def load_commands(bot):
 	blacklisted_cogs = []
 	commands_dir = "cogs/commands/"
 
+	print(f"{t_yellow} --------------------------------------------------------------------------------------- {t_white}")
+
 	for cog in os.listdir(commands_dir):
 		if cog.endswith(".py"):
 			cog = cog[:-3]
@@ -37,6 +39,8 @@ def load_commands(bot):
 def load_events(bot):
 	blacklisted_cogs = []
 	events_dir = "cogs/events/"
+
+	print(f"{t_yellow} --------------------------------------------------------------------------------------- {t_white}")
 
 	for cog in os.listdir(events_dir):
 		if cog.endswith(".py"):

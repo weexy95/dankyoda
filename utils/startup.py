@@ -14,7 +14,7 @@ def get_config():
 
 
 def load_commands(bot):
-	blacklisted_cogs = []
+	blacklisted_cogs = ["bot"]
 	commands_dir = "cogs/commands/"
 
 	for cog in os.listdir(commands_dir):

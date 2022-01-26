@@ -7,12 +7,7 @@ load_dotenv()
 db_url = os.getenv("DATABASE_URL")
 
 database = psycopg2.connect(db_url)
-print(f"""{t_green}
-|------------------------------------|
-|    Opened database successfully    |
-|------------------------------------|
-{t_white}""")
-
+print(f"""{t_green}Opened database successfully{t_white}""")
 
 def get_data(db):
 	"""

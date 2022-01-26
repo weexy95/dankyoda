@@ -1,18 +1,10 @@
 import discord
 import json
-from db import *
 
 from discord.ext import commands
 from pytz import timezone
 from datetime import datetime
-from asyncio import sleep
-
-
-def get_prefix():
-	with open('prefix.json', 'r') as f:
-		cache = json.load(f)
-
-	return cache['bot_prefix']
+from utils.colors import *
 
 
 class onReady(commands.Cog):
@@ -24,9 +16,9 @@ class onReady(commands.Cog):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		print('------------------')
-		print("Time:", datetime.now(timezone('Asia/Kolkata')).strftime('%H:%M'), datetime.now(timezone('Asia/Kolkata')).strftime('%d - %m - %Y'))
+		print(f"{t_blue}Time: {datetime.now(timezone('Asia/Kolkata')).strftime('%H:%M')} {datetime.now(timezone('Asia/Kolkata')).strftime('%d - %m - %Y')}")
 		print(f"Servers: {(len(self.client.guilds))}")
-		print(f"Users: {len(self.client.users)}")
+		print(f"Users: {len(self.client.users)} {t_white}")
 		print("-------------------")
 
 		await self.client.change_presence(

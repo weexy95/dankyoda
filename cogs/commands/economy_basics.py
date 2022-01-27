@@ -9,7 +9,7 @@ config = startup.get_config()
 currency_name = config['economy']['currency_name']
 
 
-class Economy(commands.Cog):
+class EconomyBasics(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -194,4 +194,4 @@ class Economy(commands.Cog):
         await ctx.reply(embed=em, mention_author=False)
 
 def setup(bot):
-    bot.add_cog(Economy(bot))
+    bot.add_cog(EconomyBasics(bot))

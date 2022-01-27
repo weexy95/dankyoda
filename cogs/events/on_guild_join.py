@@ -21,19 +21,12 @@ class OnGuildJoin(commands.Cog):
             if guild.me.guild_permissions.send_messages and guild.me.guild_permissions.embed_links:
                 em = discord.Embed(
                     title='Hey there!',
-                    description=f'Thanks for inviting me to your server.\nMy prefix is \'`{self.prefix}`\' If you '
-                                f'wish to change it, use the prefix command.',
+                    description=f'Thanks for inviting me to your server.\nMy prefix is \'`{self.prefix}`\'',
                     color=0x60FF60
-                )
-                em.add_field(
-                    name='Example usage:',
-                    value=f'{self.client.user.mention}` prefix <new-prefix>`\nor\n`{self.prefix}prefix <new-prefix>`'
                 )
                 await channel.send(embed=em)
                 break
-        cur.execute(f"INSERT INTO Prefix(guild, prefix) VALUES ('{guild.id}','{self.prefix}')")
-        cur.execute(f"INSERT INTO AutoMod(guild, _status) VALUES ('{guild.id}','enabled')")
-        print(f"Created config for new server -> {str(guild)}, ID -> {guild.id}")
+        print(f"Joined new server, Name: {str(guild)}, ID: {guild.id}")
         conn.commit()
 
 

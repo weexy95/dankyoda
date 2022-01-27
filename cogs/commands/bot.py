@@ -1,3 +1,5 @@
+import random
+
 import discord
 from cogs.cog_helpers.pages import Paginator
 from discord.ext import commands
@@ -24,9 +26,9 @@ class Bot(Cog):
 		return aliases
 
 	@commands.command(name="help", aliases=['h'], usage="[command/category]", help="Get help on a command or the Bot!")
-	@slash_command()
 	async def help(self, ctx, *, command_name=''):
 		working_cogs = get_working_cogs(ctx.author, self.bot)
+		message = None
 
 		if command_name.lower() in self.get_all_command():
 			command_name = self.get_all_command()[f"{command_name}"]
@@ -39,121 +41,109 @@ class Bot(Cog):
 		def index_commands(value):
 			command_list = []
 			cog = self.bot.get_cog(value.capitalize())
-			for cmd_name in cog.get_commands():
-					cmd = self.bot.get_command(name=cmd_name[:-3])
+			cog_commands = cog.get_commands()
+			for cmd in cog_commands:
+				help_cmd = cmd.help
+				if help_cmd is None:
+					help_cmd = "No help text provided by developer"
 
-					if cmd is None:
-						continue
-
-					cmd_help = cmd.help
-
-					if cmd_help is None:
-						cmd_help = "No help text provided by developer"
-
-					command_list.append([str(cmd), cmd_help])
+				command_list.append([str(cmd), help_cmd])
 			return command_list
 
-		async def paginate(ctx, commands, value):
-			pages = []
-			index = 0
+		cmd_n_help = index_commands(current_cog)
+		view = View(timeout=15)
 
-			while True:
-				description = ''
+		async def view_timeout():
+			for item in view.children:
+				item.disabled = True
+			view.stop()
+			await message.edit(view=view)
 
-				for z in range(0, 7):
-					try:
-						description = description + f"\n **[{commands[index][0]}]({url})**\n<:reply:928546470662119444>{commands[index][1]}"
-						index += 1
-					except IndexError:
-						break
+		async def select_callback(interaction):
+			value = my_select.values[0]
 
-				try:
-					page = discord.Embed(
-						title=f"{value.capitalize()} commands: ",
-						description=description
-					)
-					pages.append(page)
+			my_select.placeholder = str(value)
+			my_select.options = get_select_opts(value)
 
-				except IndexError:
-					page = discord.Embed(title=f"{value.capitalize()} commands: ", description=description)
-					pages.append(page)
-					break
+			msg_embed = build_embed(index_commands(value), value)
+			if type(msg_embed) == discord.Embed:
+				message = await interaction.message.edit(embed=msg_embed, view=view)
+			elif type(msg_embed) == list:
+				message = await paginate_(msg_embed, view, edit=True)
 
+		def get_select_opts(present):
+			s_options = []
+			for x in working_cogs:
+				if present == x:
+					s_option = discord.SelectOption(label=x, value=x, default=True)
+				else:
+					s_option = discord.SelectOption(label=x, value=x)
+				s_options.append(s_option)
+			return s_options
+		select_options = get_select_opts(current_cog)
+
+		my_select = Select(
+			placeholder=str(current_cog),
+			min_values=1,
+			max_values=1,
+			options=select_options
+		)
+		my_select.callback = select_callback
+		view.add_item(my_select)
+		view.on_timeout = view_timeout
+
+		def build_embed(indexed_commands, selected):
+			if len(indexed_commands) < 7:
+				description = f"**{selected} commands -**\n"
+				for val in indexed_commands:
+					c_name = val[0]
+					c_help = val[1]
+					description = description + f"\n**[{c_name}]({self.url})**\n<:reply:935420231185215509>{c_help}"
+				embed = discord.Embed(description=description)
+				return embed
+			else:
+				embeds = []
+				description = f"**{selected} commands - **\n"
+				for val in range(len(indexed_commands)):
+					if val%6 == 0:
+						embed = discord.Embed(description=description)
+						embeds.append(embed)
+						description = f"**{selected} commands - **\n"
+					c_name = indexed_commands[val][0]
+					c_help = indexed_commands[val][1]
+					description = description + f"\n**[{c_name}]({self.url})**\n<:reply:935420231185215509>{c_help}"
+				embeds.append(discord.Embed(description=description))
+				return embeds
+
+		async def paginate_(embeds_list, extra_view, edit=False):
 			paginator = Paginator(
-				pages=pages,
+				pages=embeds_list,
 				show_disabled=True,
 				show_indicator=True,
 				disable_on_timeout=True,
 				timeout=18,
-				custom_view=my_select_view
+				custom_view=extra_view
 			)
 			paginator.customize_button(
-				button_name="prev",
-				button_emoji="<:left:930372441249808415>",
+				"prev",
+				button_emoji="<:left:935419039122079815>",
 				button_style=discord.ButtonStyle.primary
 			)
 			paginator.customize_button(
-				button_name="next",
-				button_emoji="<:right:930372441220472863>",
+				"next",
+				button_emoji="<:right:935419039155621888>",
 				button_style=discord.ButtonStyle.primary
 			)
-
-			await paginator.edit(ctx, message=message)
-
-
-		async def my_select_callback(interaction):
-			value_index = my_select.values[0]
-			value = select_options[str(value_index)].lower()
-
-			my_select.placeholder = value.capitalize()
-
-			if my_select.values[0] == 'x':
-				await interaction.message.edit(embed=all_page, view=my_select_view)
-				return
-
-			command_list = index_commands(value)
-
-			if len(command_list) > 7:
-				await paginate(ctx, command_list, value)
-
+			if edit:
+				return await paginator.edit(ctx, message=message)
 			else:
-				description = ''
+				return await paginator.send(ctx)
 
-				for x in range(len(command_list)):
-					description = description + f"\n **[{command_list[x][0]}]({url})**\n<:reply:928546470662119444>{command_list[x][1]}"
-
-				page = discord.Embed(title=f"{value.capitalize()} commands -", description=description)
-
-				await interaction.message.edit(embed=page, view=my_select_view)
-
-		my_select = Select(
-			min_values=1,
-			max_values=1,
-			placeholder="Select Command Category"
-		)
-
-		for i in select_options.keys():
-			my_select.add_option(label=select_options[i].capitalize(), value=str(i))
-
-		my_select.callback = my_select_callback
-		my_select_view.add_item(my_select)
-
-		if command_name == "" or command_name is None:
-			message = await ctx.send(embed=all_page, view=my_select_view)
-
-		elif command_name.lower() in working_cogs:
-			my_select_view.placeholder = f"{command_name.capitalize()}"
-			category_cmd_list = index_commands(command_name.lower())
-			des = ''
-
-			for x in range(len(category_cmd_list)):
-				des = des + f"\n **[{category_cmd_list[x][0]}]({url})**\n<:reply:928546470662119444>{category_cmd_list[x][1]}"
-
-			page = discord.Embed(title=f"{command_name.capitalize()} commands -", description=des)
-			message = await ctx.send(embed=page, view=my_select_view)
-
-		elif len(command_name) > 0 and command_name.lower() not in self.get_all_command():
-			message = await ctx.send(embed=all_page, view=my_select_view)
+		msg_embed = build_embed(cmd_n_help, current_cog)
+		if type(msg_embed) == discord.Embed:
+			message = await ctx.send(embed=msg_embed, view=view)
+		elif type(msg_embed) == list:
+			message = await paginate_(msg_embed, view)
 
 
 def check_field(ctx, cog, bot):

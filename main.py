@@ -23,7 +23,7 @@ bot = commands.Bot(
 	allowed_mentions=discord.AllowedMentions(everyone=False),
 	owner_ids=config['owners'],
 )
-# bot.remove_command("help")
+bot.remove_command("help")
 
 
 if __name__ == '__main__':

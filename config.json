@@ -9,6 +9,7 @@
     416979084099321866
   ],
   "economy": {
-    "currency": "g-bucks"
+    "currency_symbol": "⬢",
+    "currency_name": "g-bucks"
   }
 }

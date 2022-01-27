@@ -7,7 +7,7 @@ from datetime import datetime
 from utils.colors import *
 
 
-class onReady(commands.Cog):
+class OnReady(commands.Cog):
 	def __init__(self, client):
 		self.client = client
 		with open("config.json") as file:
@@ -29,4 +29,4 @@ class onReady(commands.Cog):
 
 
 def setup(client):
-	client.add_cog(onReady(client))
+	client.add_cog(OnReady(client))

@@ -28,4 +28,3 @@ def get_all_data(db):
 
 
 db = database.cursor()
-database.commit()

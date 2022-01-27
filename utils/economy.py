@@ -7,11 +7,11 @@ from db import *
 class EconomyUser:
     def __init__(self, user: discord.User):
         self.user = user
-        self.wallet = self.get_wallet()
-        self.bank = self.get_bank()
-        self.level = self.get_level()
-        self.passive = self.get_passive_status()
-        self.banned = self.get_ban_status()
+        self.wallet = round(self.get_wallet())
+        self.bank = round(self.get_bank())
+        self.level = round(self.get_level())
+        self.passive = round(self.get_passive_status())
+        self.banned = round(self.get_ban_status())
 
 
     def create_account(self):

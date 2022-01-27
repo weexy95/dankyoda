@@ -29,4 +29,4 @@ class OnReady(commands.Cog):
 
 
 def setup(client):
-	client.add_cog(onReady(client))
+	client.add_cog(OnReady(client))

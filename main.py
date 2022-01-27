@@ -42,5 +42,3 @@ if __name__ == '__main__':
 
 else:
 	raise RuntimeError("Make sure you're running the main.py file")
-
-

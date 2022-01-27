@@ -15,11 +15,11 @@ class OnReady(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
-		print('------------------')
-		print(f"{t_blue}Time: {datetime.now(timezone('Asia/Kolkata')).strftime('%H:%M')} {datetime.now(timezone('Asia/Kolkata')).strftime('%d - %m - %Y')}")
+		print(f'{t_yellow}------------------')
+		print(f"Time: {datetime.now(timezone('Asia/Kolkata')).strftime('%H:%M')} {datetime.now(timezone('Asia/Kolkata')).strftime('%d - %m - %Y')}")
 		print(f"Servers: {(len(self.client.guilds))}")
-		print(f"Users: {len(self.client.users)} {t_white}")
-		print("-------------------")
+		print(f"Users: {len(self.client.users)} ")
+		print(f"-------------------{t_white}")
 
 		await self.client.change_presence(
 			activity=discord.Activity(

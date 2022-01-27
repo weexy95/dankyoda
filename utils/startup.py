@@ -1,5 +1,6 @@
 import os
 import json
+import traceback
 
 from utils.colors import *
 
@@ -15,32 +16,42 @@ def get_config():
 
 def load_commands(bot):
 	blacklisted_cogs = []
+	commands_dir = "cogs/commands/"
 
-	for cog in os.listdir("cogs/commands"):
+	for cog in os.listdir(commands_dir):
 		if cog.endswith(".py"):
-			if cog[:-3] in blacklisted_cogs:
-				colored(242, 203, 125, f"Skipped cog: {cog}")
-			else:
-				try:
-					bot.load_extension(f"cogs.commands.{cog[:-3]}")
-					print(f"Loaded cog: {cog[:-3]}")
-				except Exception as e:
-					exception = f"{type(e).__name__}: {e}"
-					colored(255, 62, 62, f"Failed to load cog: cogs/commands/{cog}\n{exception}")
+			cog = cog[:-3]
+		else:
+			continue
 
+		if cog in blacklisted_cogs:
+			print(f"{t_yellow}Skipped cog: {cog} {t_blue}")
+		else:
+			try:
+				bot.load_extension(f"{commands_dir.replace('/', '.')}{cog}")
+				print(f"{t_blue}Loaded command cog:{t_green} {cog}{t_blue}")
+			except Exception as e:
+				exception = f"{type(e).__name__}: {e}"
+				print(f"{t_red}Failed to load cog: cogs/commands/{cog}")
+				print(f"{e}{traceback.format_exc()} {t_blue}")
 
 
 def load_events(bot):
-	blacklisted_cogs = []
+	blacklisted_cogs = ["on_command_error"]
+	events_dir = "cogs/events/"
 
-	for cog in os.listdir("cogs/events"):
+	for cog in os.listdir(events_dir):
 		if cog.endswith(".py"):
-			if cog[:-3] in blacklisted_cogs:
-				colored(242, 203, 125, f"Skipped cog: {cog}")
-			else:
-				try:
-					bot.load_extension(f"cogs.events.{cog[:-3]}")
-					print(f"Loaded cog: {cog[:-3]}")
-				except Exception as e:
-					exception = f"{type(e).__name__}: {e}"
-					colored(255, 62, 62, f"Failed to load cog: cogs/events/{cog}\n{exception}")
+			cog = cog[:-3]
+		else:
+			continue
+
+		if cog in blacklisted_cogs:
+			print(f"{t_yellow}Skipped event: {cog} {t_blue}")
+		else:
+			try:
+				bot.load_extension(f"{events_dir.replace('/', '.')}{cog}")
+				print(f"{t_blue}Loaded cog: {t_green}{cog}{t_blue}")
+			except Exception as e:
+				exception = f"{type(e).__name__}: {e}"
+				print(f"{t_red}Failed to load cog: cogs/commands/{cog}\n{exception} {t_white}")

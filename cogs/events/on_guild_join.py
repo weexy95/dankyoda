@@ -8,12 +8,15 @@ import json
 class OnGuildJoin(commands.Cog):
     def __init__(self, client):
         self.client = client
+
         if not os.path.isfile("config.json"):
             exit("'config.json' not found! Please add it and try again.")
-        else:
-            with open("config.json") as file:
-                self.config = json.load(file)
-        self.prefix = self.config["bot_prefix"]
+
+        with open("config.json", "r") as file:
+            self.config = json.load(file)
+
+        self.prefix = self.config['bot_prefix']
+
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -21,20 +24,13 @@ class OnGuildJoin(commands.Cog):
             if guild.me.guild_permissions.send_messages and guild.me.guild_permissions.embed_links:
                 em = discord.Embed(
                     title='Hey there!',
-                    description=f'Thanks for inviting me to your server.\nMy prefix is \'`{self.prefix}`\' If you '
-                                f'wish to change it, use the prefix command.',
+                    description=f'Thanks for inviting me to your server.\nMy prefix is \'`{self.prefix}`\'',
                     color=0x60FF60
-                )
-                em.add_field(
-                    name='Example usage:',
-                    value=f'{self.client.user.mention}` prefix <new-prefix>`\nor\n`{self.prefix}prefix <new-prefix>`'
                 )
                 await channel.send(embed=em)
                 break
-        cur.execute(f"INSERT INTO Prefix(guild, prefix) VALUES ('{guild.id}','{self.prefix}')")
-        cur.execute(f"INSERT INTO AutoMod(guild, _status) VALUES ('{guild.id}','enabled')")
-        print(f"Created config for new server -> {str(guild)}, ID -> {guild.id}")
-        conn.commit()
+
+        print(f"Joined new server, Name: {str(guild)}, ID: {guild.id}, Members: {len(guild.member_count)}")
 
 
 def setup(client):

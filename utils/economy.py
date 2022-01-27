@@ -9,11 +9,21 @@ class EconomyUser:
         self.user = user
         self.wallet = self.get_wallet()
         self.bank = self.get_bank()
+        self.level = self.get_level()
+        self.passive = self.get_passive_status()
+        self.banned = self.get_ban_status()
 
 
     def create_account(self):
-        db.execute(f"INSERT INTO userdata(user_id, wallet, bank, level, passive, is_banned) VALUES('{self.user.id}', 500, 0, 0, False, False)")
-        database.commit()
+        try:
+            db.execute(f"INSERT INTO userdata(user_id, wallet, bank, level, passive, is_banned) VALUES('{self.user.id}', 500, 0, 0, False, False)")
+            database.commit()
+            return True
+        except Exception as e:
+            if "already exists" in e:
+                return True
+            else:
+                return False
 
 
     def get_wallet(self) -> int:
@@ -80,9 +90,9 @@ class EconomyUser:
     def update_balance(self, wallet: int = None, bank: int = None):
         try:
             if wallet:
-                db.execute(f"UPDATE userdata SET wallet = {wallet} WHERE user_id = '{self.user.id}'")
+                db.execute(f"UPDATE userdata SET wallet = {self.wallet + wallet} WHERE user_id = '{self.user.id}'")
             if bank:
-                db.execute(f"UPDATE userdata SET bank = {bank} WHERE user_id = '{self.user.id}'")
+                db.execute(f"UPDATE userdata SET bank = {self.bank + bank} WHERE user_id = '{self.user.id}'")
             database.commit()
             return True
 
@@ -101,6 +111,7 @@ class EconomyUser:
         except psycopg2.Error or psycopg2.DatabaseError as e:
             try:
                 self.create_account()
+                return True
             except:
                 return e
 

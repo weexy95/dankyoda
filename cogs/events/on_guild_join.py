@@ -8,12 +8,15 @@ import json
 class OnGuildJoin(commands.Cog):
     def __init__(self, client):
         self.client = client
+
         if not os.path.isfile("config.json"):
             exit("'config.json' not found! Please add it and try again.")
-        else:
-            with open("config.json") as file:
-                self.config = json.load(file)
-        self.prefix = self.config["bot_prefix"]
+
+        with open("config.json", "r") as file:
+            self.config = json.load(file)
+
+        self.prefix = self.config['bot_prefix']
+
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -26,8 +29,8 @@ class OnGuildJoin(commands.Cog):
                 )
                 await channel.send(embed=em)
                 break
-        print(f"Joined new server, Name: {str(guild)}, ID: {guild.id}")
-        conn.commit()
+
+        print(f"Joined new server, Name: {str(guild)}, ID: {guild.id}, Members: {len(guild.member_count)}")
 
 
 def setup(client):

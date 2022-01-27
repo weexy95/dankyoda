@@ -60,9 +60,9 @@ class ErrorHandling(commands.Cog):
 
 		elif isinstance(error, commands.MemberNotFound):
 			not_found = [
-				"**What are you talking about??** \n\nNo such person exists on this server...",
-				"I searched through the deepest places of this server and still\n `I cannot find the person you mentioned`",
-				"Welp, this person is no longer in existence, Go find somebody else!"
+				"What are you talking about??\n\nNo such person exists on this server...",
+				"I searched through the deepest places of this server and still\nI couldn't find the person you mentioned",
+				"Welp, this person is doesn't exist in this server."
 			]
 			em = discord.Embed(
 				description=random.choice(not_found),
@@ -104,7 +104,8 @@ class ErrorHandling(commands.Cog):
 			em = discord.Embed(
 				title="Whoa there, hold your horses!",
 				description=f"The `{ctx.command}` command is on a cooldown, try again in **{error.retry_after:,.1f} {mode}**",
-				colour=discord.Color.brand_red())
+				colour=discord.Color.brand_red()
+			)
 			await ctx.reply(embed=em, mention_author=False)
 			return
 

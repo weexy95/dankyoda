@@ -48,3 +48,9 @@ def get_color(color: str):
         return colors_but_dict[color]
     except KeyError:
         return colors_but_dict['l_yellow']
+
+def colored(r, g, b, text):
+    """
+    Function to print colored text in terminal
+    """
+    print(f"\33[38;2;{r};{g};{b}m{text}\033[38;2;255;255;255m")

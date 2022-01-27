@@ -93,7 +93,7 @@ class Bot(Cog):
 		view.on_timeout = view_timeout
 
 		def build_embed(indexed_commands, selected):
-			if len(indexed_commands) < 7:
+			if len(indexed_commands) < 8:
 				description = f"**{selected} commands -**\n"
 				for val in indexed_commands:
 					c_name = val[0]
@@ -105,7 +105,7 @@ class Bot(Cog):
 				embeds = []
 				description = f"**{selected} commands - **\n"
 				for val in range(len(indexed_commands)):
-					if val%6 == 0:
+					if val%7 == 0 and val != 0:
 						embed = discord.Embed(description=description)
 						embeds.append(embed)
 						description = f"**{selected} commands - **\n"

@@ -15,40 +15,32 @@ def get_config():
 
 def load_commands(bot):
 	blacklisted_cogs = []
-	cogs = [
-		'help',
-		'economy'
-	]
 
-	for cog in cogs:
-		if cog in blacklisted_cogs:
-			print(f"{t_yellow}Skipped cog: {cog} {t_white}")
-		else:
-			try:
-				bot.load_extension(f"cogs.commands.{cog}")
-				print(f"Loaded cog: {cog}")
-			except Exception as e:
-				exception = f"{type(e).__name__}: {e}"
-				print(f"{t_red}Failed to load cog: cogs/commands/{cog}\n{exception} {t_white}")
+	for cog in os.listdir("cogs/commands"):
+		if cog.endswith(".py"):
+			if cog[:-3] in blacklisted_cogs:
+				colored(242, 203, 125, f"Skipped cog: {cog}")
+			else:
+				try:
+					bot.load_extension(f"cogs.commands.{cog[:-3]}")
+					print(f"Loaded cog: {cog[:-3]}")
+				except Exception as e:
+					exception = f"{type(e).__name__}: {e}"
+					colored(255, 62, 62, f"Failed to load cog: cogs/commands/{cog}\n{exception}")
+
 
 
 def load_events(bot):
 	blacklisted_cogs = []
-	cogs = [
-		'on_command_completion',
-		'on_command_error',
-		'on_guild_join',
-		'on_guild_remove',
-		'on_ready'
-	]
 
-	for cog in cogs:
-		if cog in blacklisted_cogs:
-			print(f"{t_yellow}Skipped cog: {cog} {t_white}")
-		else:
-			try:
-				bot.load_extension(f"cogs.commands.{cog}")
-				print(f"Loaded cog: {cog}")
-			except Exception as e:
-				exception = f"{type(e).__name__}: {e}"
-				print(f"{t_red}Failed to load cog: cogs/commands/{cog}\n{exception} {t_white}")
+	for cog in os.listdir("cogs/events"):
+		if cog.endswith(".py"):
+			if cog[:-3] in blacklisted_cogs:
+				colored(242, 203, 125, f"Skipped cog: {cog}")
+			else:
+				try:
+					bot.load_extension(f"cogs.events.{cog[:-3]}")
+					print(f"Loaded cog: {cog[:-3]}")
+				except Exception as e:
+					exception = f"{type(e).__name__}: {e}"
+					colored(255, 62, 62, f"Failed to load cog: cogs/events/{cog}\n{exception}")

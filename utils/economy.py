@@ -9,11 +9,22 @@ class EconomyUser:
 		self.user = user
 		self.wallet = self.get_wallet()
 		self.bank = self.get_bank()
+		self.banned = self.get_ban_status()
+		self.passive = self.get_passive_status()
+
 
 	def create_account(self):
-		db.execute(
-			f"INSERT INTO userdata(user_id, wallet, bank, level, passive, is_banned) VALUES('{self.user.id}', 500, 0, 0, False, False)")
-		database.commit()
+		try:
+			db.execute(f"INSERT INTO userdata(user_id, wallet, bank, level, passive, is_banned) VALUES('{self.user.id}', 500, 0, 0, False, False)")
+			database.commit()
+			return True
+
+		except psycopg2.Error or psycopg2.DatabaseError as e:
+			if "already exists" in e:
+				return True
+			else:
+				return False
+
 
 	def get_wallet(self) -> int:
 		db.execute(f"SELECT wallet FROM userdata WHERE user_id = '{self.user.id}'")
@@ -25,6 +36,7 @@ class EconomyUser:
 
 		return wallet
 
+
 	def get_bank(self) -> int:
 		db.execute(f"SELECT bank FROM userdata WHERE user_id = '{self.user.id}'")
 		bank = get_data(db)
@@ -35,6 +47,7 @@ class EconomyUser:
 
 		return bank
 
+
 	def get_level(self) -> int:
 		db.execute(f"SELECT level FROM userdata WHERE user_id = '{self.user.id}'")
 		level = get_data(db)
@@ -44,6 +57,7 @@ class EconomyUser:
 			return 0
 
 		return level
+
 
 	def get_passive_status(self) -> bool:
 		db.execute(f"SELECT passive FROM userdata WHERE user_id = '{self.user.id}'")
@@ -58,6 +72,7 @@ class EconomyUser:
 		else:
 			return False
 
+
 	def get_ban_status(self) -> bool:
 		db.execute(f"SELECT is_banned FROM userdata WHERE user_id = '{self.user.id}'")
 		status = get_data(db)
@@ -71,12 +86,13 @@ class EconomyUser:
 		else:
 			return False
 
+
 	def update_balance(self, wallet: int = None, bank: int = None):
 		try:
 			if wallet:
-				db.execute(f"UPDATE userdata SET wallet = {wallet} WHERE user_id = '{self.user.id}'")
+				db.execute(f"UPDATE userdata SET wallet = {self.wallet + wallet} WHERE user_id = '{self.user.id}'")
 			if bank:
-				db.execute(f"UPDATE userdata SET bank = {bank} WHERE user_id = '{self.user.id}'")
+				db.execute(f"UPDATE userdata SET bank = {self.bank + bank} WHERE user_id = '{self.user.id}'")
 			database.commit()
 			return True
 
@@ -85,6 +101,7 @@ class EconomyUser:
 				self.create_account()
 			except:
 				return e
+
 
 	def update_level(self, new_level: int):
 		try:
@@ -96,6 +113,7 @@ class EconomyUser:
 				self.create_account()
 			except:
 				return e
+
 
 	def update_status(self, status_of, new_status: bool):
 		try:

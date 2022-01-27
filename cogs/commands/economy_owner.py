@@ -4,7 +4,7 @@ from discord.ext import commands
 from utils import economy
 
 
-class EconomyOwner(commands.Cog):
+class Economy_owner(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
 
@@ -60,4 +60,4 @@ class EconomyOwner(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(EconomyOwner(bot))
+    bot.add_cog(Economy_owner(bot))

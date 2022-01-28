@@ -29,7 +29,7 @@ def load_commands(bot):
 		else:
 			try:
 				bot.load_extension(f"{commands_dir.replace('/', '.')}{cog}")
-				print(f"{t_blue}Loaded command cog:{t_green} {cog}{t_blue}")
+				print(f"{t_blue}Loaded cog:{t_green} {cog}{t_blue}")
 			except Exception as e:
 				exception = f"{type(e).__name__}: {e}"
 				print(f"{t_red}Failed to load cog: cogs/commands/{cog}")

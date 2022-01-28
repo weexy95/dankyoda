@@ -99,7 +99,14 @@ class EconomyUser:
         except psycopg2.Error or psycopg2.DatabaseError as e:
             try:
                 self.create_account()
-            except:
+                if wallet:
+                    db.execute(f"UPDATE userdata SET wallet = {self.wallet + wallet} WHERE user_id = '{self.user.id}'")
+                if bank:
+                    db.execute(f"UPDATE userdata SET bank = {self.bank + bank} WHERE user_id = '{self.user.id}'")
+                database.commit()
+                return True
+
+            except Exception as e:
                 return e
 
 
@@ -115,7 +122,15 @@ class EconomyUser:
         except psycopg2.Error or psycopg2.DatabaseError as e:
             try:
                 self.create_account()
-            except:
+
+                if wallet:
+                    db.execute(f"UPDATE userdata SET wallet = {wallet} WHERE user_id = '{self.user.id}'")
+                if bank:
+                    db.execute(f"UPDATE userdata SET bank = {bank} WHERE user_id = '{self.user.id}'")
+                database.commit()
+                return True
+
+            except Exception as e:
                 return e
 
 

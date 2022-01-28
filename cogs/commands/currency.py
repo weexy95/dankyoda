@@ -38,18 +38,21 @@ class Currency(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	"""
-	BASIC
-	"""
+
 	@commands.command(name='balance', aliases=['bal'], help="Get your/user's balance", usage="[user]")
 	@commands.cooldown(1, 5, commands.BucketType.user)
 	async def balance(self, ctx, user: discord.Member = None):
 		if user is None:
 			user = ctx.author
+			person = economy.EconomyUser(user)
+			if person.banned:
+				return
 
 		person = economy.EconomyUser(user)
+
 		if person.banned:
-			return
+			await ctx.reply("That person is banned from using my currency features.", mention_author=False)
+
 
 		em = discord.Embed(
 			title=f"{user.display_name}'s balance",
@@ -67,8 +70,11 @@ class Currency(commands.Cog):
 		giver = economy.EconomyUser(ctx.author)
 		receiver = economy.EconomyUser(user)
 
+		if receiver.banned:
+			await ctx.reply("That person is banned from using me, mention somebody else", mention_author=False)
+			return
+
 		if giver.banned:
-			await ctx.reply("This person is banned from using me, mention somebody else..", mention_author=False)
 			return
 
 		if user == ctx.author:
@@ -106,6 +112,9 @@ class Currency(commands.Cog):
 
 		if robber.banned:
 			return
+
+		if robee.banned:
+			await ctx.reply("That person has been banned from using my currency features.")
 
 		if robber.wallet < 1000:
 			await ctx.reply(f"You need atleast 1000 {currency} in order to rob someone. How are you gonna bribe the neighbours to keep their mouths shut?")
@@ -218,9 +227,6 @@ class Currency(commands.Cog):
 		await ctx.reply(embed=em, mention_author=False)
 
 
-	"""
-	REWARDS
-	"""
 	@commands.command(name="hourly", help="Get your free hourly rewards", usage="")
 	@commands.cooldown(1, 3600, commands.BucketType.user)
 	async def hourly(self, ctx):

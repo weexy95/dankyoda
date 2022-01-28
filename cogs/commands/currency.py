@@ -229,7 +229,7 @@ class Currency(commands.Cog):
 
 		em = discord.Embed(
 			title="Here are your hourly rewards",
-			description=f"You received 500 {currency}"
+			description=f"You received `{currency} 500`"
 		)
 		await ctx.reply(embed=em, mention_author=False)
 
@@ -245,8 +245,8 @@ class Currency(commands.Cog):
 		user.update_balance(wallet=12000)
 
 		em = discord.Embed(
-			title="Here are your hourly rewards",
-			description=f"You received 12,000 {currency}"
+			title="Here are your daily rewards",
+			description=f"You received `{currency} 12,000`"
 		)
 		await ctx.reply(embed=em, mention_author=False)
 

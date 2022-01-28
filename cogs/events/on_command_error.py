@@ -154,10 +154,10 @@ class ErrorHandling(commands.Cog):
 
 			em = discord.Embed(title='Error', color=0xFF3E3E)
 
-			em.add_field(name='Message:', value=f"<:reply:935420231185215509>`{ctx.message.content}`", inline=False)
+			em.add_field(name='Message:', value=f"{ctx.message.content}", inline=False)
 			em.add_field(name='Error:', value=f"```{error}```", inline=False)
-			em.add_field(name='Server:', value=f"<:reply:935420231185215509>guild-`{ctx.guild}`, channel-`#{ctx.channel}`", inline=False)
-			em.add_field(name='User:', value=f"{ctx.author.mention}", inline=False)
+			em.add_field(name='Server:', value=f"{ctx.guild} in `#{ctx.channel}`", inline=False)
+			em.add_field(name='User:', value=f"{ctx.author}, id - {ctx.author.id}", inline=False)
 
 			view = discord.ui.View()
 
@@ -167,7 +167,7 @@ class ErrorHandling(commands.Cog):
 			if error.endswith('Missing Permissions'):
 				try:
 					return await ctx.send('I am missing permissions in order to run this command. I cannot identify the correct one.')
-				except discord.errors.Forbidden:
+				except discord.Forbidden:
 					return
 
 

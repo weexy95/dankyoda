@@ -34,6 +34,9 @@ class Currency(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
+	"""
+	BASIC
+	"""
 	@commands.command(name='balance', aliases=['bal'], help="Get your/user's balance", usage="[user]")
 	@commands.cooldown(1, 5, commands.BucketType.user)
 	async def balance(self, ctx, user: discord.Member = None):
@@ -52,6 +55,7 @@ class Currency(commands.Cog):
 		em.add_field(name="Bank Balance:", value=f"<:reply:935420231185215509>`{monetize(person.bank)}`", inline=False)
 		em.set_footer(text=f"{richness(person.wallet, person.bank)}")
 		await ctx.reply(embed=em, mention_author=False)
+
 
 	@commands.command(name='give', aliases=['share'], help=f"Share your {currency_name} with your friends", usage="<user> <amount>")
 	@commands.cooldown(1, 10, commands.BucketType.user)
@@ -83,11 +87,12 @@ class Currency(commands.Cog):
 		receiver.update_balance(wallet=amount)
 
 		em = discord.Embed(
-			description=f"**{user.name} successfully received** `{monetize(amount)}`** from you!**"
-			            f"\n\n**your wallet**\n<:reply:935420231185215509>`{monetize(giver.wallet)}`\n\n **{user.name}'s wallet**\n<:reply:935420231185215509>`{monetize(receiver.wallet)}`",
+			description=f"**{user.display_name} received** `{monetize(amount)}`** from you!**"
+			            f"\n\n**your wallet**\n<:reply:935420231185215509>`{monetize(giver.wallet)}`\n\n **{user.display_name}'s wallet**\n<:reply:935420231185215509>`{monetize(receiver.wallet)}`",
 			color=colors.l_yellow
 		)
 		await ctx.reply(embed=em, mention_author=False)
+
 
 	@commands.command(name='rob', aliases=['steal'], help=f"Rob some {currency_name} from someone", usage="<user>")
 	@commands.cooldown(1, 30, commands.BucketType.user)
@@ -99,8 +104,7 @@ class Currency(commands.Cog):
 			return
 
 		if robber.wallet < 1000:
-			await ctx.reply(
-				"You need atleast 1000 ⬢ in order to rob someone. How are you gonna bribe the neighbours to keep their mouths shut?")
+			await ctx.reply(f"You need atleast 1000 {currency} in order to rob someone. How are you gonna bribe the neighbours to keep their mouths shut?")
 			return
 
 		if user == ctx.author:
@@ -130,7 +134,7 @@ class Currency(commands.Cog):
 
 			em = discord.Embed(
 				title=f"You stole {percent_stolen}% of {user.display_name}'s {currency_name}",
-				description=f"You now have `{robber.wallet + amount} ⬢` and {user.display_name} has `{robee.wallet - amount} ⬢`"
+				description=f"You now have `{robber.wallet + amount} {currency}` and {user.display_name} has `{robee.wallet - amount} {currency}`"
 			)
 			await ctx.reply(embed=em, mention_author=False)
 
@@ -153,11 +157,12 @@ class Currency(commands.Cog):
 				amount = 500
 
 			em = discord.Embed(
-				description=f"You entered {user.display_name}'s house and tried to rob them but they beat the shit out of you and you had to pay them {amount} ⬢ in order to get away. Sucks to be you LOL"
+				description=f"You entered {user.display_name}'s house and tried to rob them but they beat the shit out of you and you had to pay them {amount} {currency} in order to get away. Sucks to be you LOL"
 			)
 			await ctx.reply(embed=em, mention_author=False)
 			robber.update_balance(wallet=(-amount))
 			robee.update_balance(wallet=amount)
+
 
 	@commands.command(name='deposit', aliases=['dep'], help=f"Deposit your precious {currency_name} in the bank", usage="[amount]")
 	@commands.cooldown(1, 3, commands.BucketType.user)
@@ -179,9 +184,10 @@ class Currency(commands.Cog):
 		user.update_balance(wallet=(-amount), bank=amount)
 		em = discord.Embed(
 			title="Deposited your money in the bank",
-			description=f"**Your wallet balance**: {user.wallet - amount} ⬢\n**Your bank balance**: {user.bank + amount} ⬢"
+			description=f"**Your wallet balance**: {user.wallet - amount} {currency}\n**Your bank balance**: {user.bank + amount} {currency}"
 		)
 		await ctx.reply(embed=em, mention_author=False)
+
 
 	@commands.command(name='withdraw', aliases=['with'], help=f"Withdraw your {currency_name} from the bank",usage="[amount]")
 	@commands.cooldown(1, 3, commands.BucketType.user)
@@ -203,10 +209,14 @@ class Currency(commands.Cog):
 		user.update_balance(wallet=amount, bank=(-amount))
 		em = discord.Embed(
 			title="Withdrawn your money in the bank",
-			description=f"**Your wallet balance**: {user.wallet + amount} ⬢\n**Your bank balance**: {user.bank - amount} ⬢"
+			description=f"**Your wallet balance**: {user.wallet + amount} {currency}\n**Your bank balance**: {user.bank - amount} {currency}"
 		)
 		await ctx.reply(embed=em, mention_author=False)
 
+
+	"""
+	REWARDS
+	"""
 	@commands.command(name="hourly", help="Get your free hourly rewards", usage="")
 	@commands.cooldown(1, 3600, commands.BucketType.user)
 	async def hourly(self, ctx):
@@ -219,9 +229,10 @@ class Currency(commands.Cog):
 
 		em = discord.Embed(
 			title="Here are your hourly rewards",
-			description=f"You received 500 ⬢"
+			description=f"You received 500 {currency}"
 		)
 		await ctx.reply(embed=em, mention_author=False)
+
 
 	@commands.command(name="daily", help="Get your free daily rewards", usage="")
 	@commands.cooldown(1, 3600*24, commands.BucketType.user)
@@ -235,9 +246,10 @@ class Currency(commands.Cog):
 
 		em = discord.Embed(
 			title="Here are your hourly rewards",
-			description=f"You received 12,000 ⬢"
+			description=f"You received 12,000 {currency}"
 		)
 		await ctx.reply(embed=em, mention_author=False)
+
 
 def setup(bot):
 	bot.add_cog(Currency(bot))

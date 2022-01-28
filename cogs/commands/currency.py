@@ -20,6 +20,7 @@ def monetize(number: int):
 def richness(pocket, bank):
 	total = pocket + bank
 	money_list = config['richness']['money'].keys()
+
 	for x in money_list:
 		amt = int(x)
 		# print(f"total: {total}, amt: {amt}")
@@ -27,6 +28,7 @@ def richness(pocket, bank):
 			return config['richness']['money'][x]
 		else:
 			continue
+
 	return config['richness']['infinite_money']
 
 

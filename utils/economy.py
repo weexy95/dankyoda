@@ -34,7 +34,7 @@ class EconomyUser:
             self.create_account()
             return 500
 
-        return wallet
+        return int(wallet)
 
 
     def get_bank(self) -> int:
@@ -45,7 +45,7 @@ class EconomyUser:
             self.create_account()
             return 0
 
-        return bank
+        return int(bank)
 
 
     def get_level(self) -> int:

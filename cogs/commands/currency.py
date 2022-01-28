@@ -215,11 +215,11 @@ class Currency(commands.Cog):
 		if user.banned:
 			return
 
-		user.update_balance(wallet=200)
+		user.update_balance(wallet=2000)
 
 		em = discord.Embed(
 			title="Here are your hourly rewards",
-			description=f"You received 200 ⬢"
+			description=f"You received 2,000 ⬢"
 		)
 		await ctx.reply(embed=em, mention_author=False)
 

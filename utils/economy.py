@@ -104,6 +104,24 @@ class EconomyUser:
 				return e
 
 
+	def set_balance(self, wallet: int = None, bank: int = None):
+		try:
+			if wallet:
+				db.execute(f"UPDATE userdata SET wallet = {wallet} WHERE user_id = '{self.user.id}'")
+				self.wallet = wallet
+			if bank:
+				db.execute(f"UPDATE userdata SET bank = {bank} WHERE user_id = '{self.user.id}'")
+				self.bank = bank
+			database.commit()
+			return True
+
+		except psycopg2.Error or psycopg2.DatabaseError as e:
+			try:
+				self.create_account()
+			except:
+				return e
+
+
 	def update_level(self, new_level: int):
 		try:
 			db.execute(f"UPDATE userdata SET level = {new_level} WHERE user_id = '{self.user.id}'")

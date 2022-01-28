@@ -1,11 +1,12 @@
 import random
-
 import discord
+
 from cogs.cog_helpers.pages import Paginator
 from discord.ext import commands
 from discord.ext.commands import Cog, slash_command
 from discord.ui import Select, View
 from db import *
+from utils import colors
 from utils.startup import get_config
 
 

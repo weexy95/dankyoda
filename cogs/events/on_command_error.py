@@ -127,6 +127,10 @@ class ErrorHandling(commands.Cog):
 			return
 
 
+		elif isinstance(error, commands.NotOwner):
+			return
+
+
 		elif isinstance(error, discord.Forbidden):
 			try:
 				em = discord.Embed(

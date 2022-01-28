@@ -4,17 +4,16 @@ import discord
 from discord.ext import commands
 from utils import economy, colors, startup
 from utils.economy import EconomyUser
-import locale
+import babel.numbers
 
 config = startup.get_config()
-locale.setlocale(locale.LC_ALL, "")
 currency_name = config['economy']['currency_name']
 currency = config['economy']['currency_symbol']
 
 
 def monetize(number: int):
 	number = round(number)
-	monetized = locale.currency(number, symbol=False, grouping=False)[:-3]
+	monetized = babel.numbers.format_currency(number, '', locale='en_CA')[:-3]
 	return f"{currency} {monetized}"
 
 
@@ -49,40 +48,43 @@ class Currency(commands.Cog):
 			title=f"{user.display_name}'s balance",
 			timestamp=datetime.datetime.utcnow()
 		)
-		em.add_field(name="Pocket Money:", value=f"`{monetize(person.wallet)}`", inline=False)
-		em.add_field(name="Bank Balance:", value=f"`{monetize(person.bank)}`", inline=False)
+		em.add_field(name="Pocket Money:", value=f"<:reply:935420231185215509>`{monetize(person.wallet)}`", inline=False)
+		em.add_field(name="Bank Balance:", value=f"<:reply:935420231185215509>`{monetize(person.bank)}`", inline=False)
 		em.set_footer(text=f"{richness(person.wallet, person.bank)}")
 		await ctx.reply(embed=em, mention_author=False)
 
 	@commands.command(name='give', aliases=['share'], help=f"Share your {currency_name} with your friends", usage="<user> <amount>")
 	@commands.cooldown(1, 10, commands.BucketType.user)
-	async def share_coins(self, ctx, user: discord.Member, amount: int):
+	async def share_coins(self, ctx, user: discord.User, amount: int):
 		giver = economy.EconomyUser(ctx.author)
 		receiver = economy.EconomyUser(user)
 
 		if giver.banned:
+			await ctx.reply("This person is banned from using me, mention somebody else..", mention_author=False)
 			return
 
 		if user == ctx.author:
-			await ctx.reply(f"You cannot share {currency_name} with your self. Buzz off, go get some friends",
-			                mention_author=False)
+			await ctx.reply(f"You cannot share money with yourself. Buzz off, go get some friends")
 			return
 
 		if amount < 0:
-			await ctx.reply(f"You cannot send negative money to someone, what are you even trying?",
-			                mention_author=False)
+			await ctx.reply(f"`You cannot send negative money to someone`, what are you even trying?", mention_author=False)
+			return
+
+		if amount == 0:
+			await ctx.reply(f"You dumb or what? `the amount should be more than 0`.", mention_author=False)
 			return
 
 		if giver.wallet < amount:
-			await ctx.reply(f"You dont have that many {currency_name} Know your place, peasant", mention_author=False)
+			await ctx.reply(f"`You ain't that rich`. Know your place, peasant!", mention_author=False)
 			return
 
 		giver.update_balance(wallet=(-amount))
 		receiver.update_balance(wallet=amount)
 
 		em = discord.Embed(
-			title=f"You gave {user.display_name} {amount} ⬢",
-			description=f"Now they've got `{receiver.wallet + amount} ⬢`\nand you have `{giver.wallet - amount} ⬢`",
+			description=f"**{user.name} successfully received** `{monetize(amount)}`** from you!**"
+			            f"\n\n**your wallet**\n<:reply:935420231185215509>`{monetize(giver.wallet)}`\n\n **{user.name}'s wallet**\n<:reply:935420231185215509>`{monetize(receiver.wallet)}`",
 			color=colors.l_yellow
 		)
 		await ctx.reply(embed=em, mention_author=False)

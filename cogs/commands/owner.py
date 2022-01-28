@@ -1,11 +1,12 @@
 import discord
-from dotenv import load_dotenv
 import urllib3
 import os
 import heroku3
+
+from dotenv import load_dotenv
 from io import BytesIO
 from discord.ext import commands
-from utils import economy, startup
+from utils import colors, economy, startup
 
 
 load_dotenv()
@@ -74,8 +75,9 @@ class Owner(commands.Cog):
         user = economy.EconomyUser(user)
         await ctx.reply(user.update_status(status_of=status_of, new_status=new_status))
 
-    @commands.is_owner()
+
     @commands.command(name="botlog", aliases=["heroku-log"], usage="[lines]", help="Get bot logs - errors, warning, messages, etc.", description="Get the logs of the discord bot. If the number of lines is not defined then it defaults to 25 lines of most recent logs")
+    @commands.is_owner()
     async def botlog(self, ctx, lines: int = 25):
         logs = self.heroku_.get_app_log("dank-yoda", lines=lines)
         as_bytes = map(str.encode, logs)
@@ -106,9 +108,8 @@ class Owner(commands.Cog):
             )
         )
 
-
+    @commands.command(name="speak", aliases=["echo"], usage= "<args>", help="Send a normal message via the bot")
     @commands.is_owner()
-    @commands.command(name="speak", aliases=["echo"], help="Send a normal message via the bot...")
     async def say(self, ctx, *, args):
         if ctx.message.author.id in self.client.owner_ids:
             await ctx.send(args)
@@ -116,9 +117,9 @@ class Owner(commands.Cog):
             return
 
 
+    @commands.command(name="reboot", aliases=['restart'], usage="", help="Stops the bot and starts it again")
     @commands.is_owner()
-    @commands.command(name="reboot", aliases=['restart'], help="Stops the bot and starts it again...",)
-    async def shutdown(self, ctx):
+    async def reboot(self, ctx):
         async def view_timeout():
             timeup_embed = discord.Embed(description="Welp! fine not doing that")
             await choices.edit(embed=timeup_embed, view=None)
@@ -173,6 +174,66 @@ class Owner(commands.Cog):
         )
         choices = await ctx.send(embed=confirmation, view=view)
 
+    @commands.command(name='reload')
+    @commands.is_owner()
+    async def reload_cog(self, ctx, cog):
+        try:
+            self.bot.unload_extension(f"cogs.{cog}")
+            self.bot.load_extension(f"cogs.{cog}")
+
+            em = discord.Embed(
+                title="Cog Reloaded",
+                description=f"cogs/{cog}",
+                color=colors.l_red
+            )
+            await ctx.reply(embed=em)
+        except Exception as e:
+            em = discord.Embed(
+                title="Error!",
+                description=f"```{e}```",
+                color=colors.l_red
+            )
+            await ctx.reply(embed=em)
+
+    @commands.command(name='load')
+    @commands.is_owner()
+    async def load_cog(self, ctx, cog):
+        try:
+            self.bot.load_extension(f"cogs.{cog}")
+
+            em = discord.Embed(
+                title="Cog Loaded",
+                description=f"cogs/{cog}",
+                color=colors.l_red
+            )
+            await ctx.reply(embed=em)
+        except Exception as e:
+            em = discord.Embed(
+                title="Error!",
+                description=f"```{e}```",
+                color=colors.l_red
+            )
+            await ctx.reply(embed=em)
+
+    @commands.command(name='unload')
+    @commands.is_owner()
+    async def unload_cog(self, ctx, cog):
+        try:
+            self.bot.unload_extension(f"cogs.{cog}")
+
+            em = discord.Embed(
+                title="Cog unloaded",
+                description=f"cogs/{cog}",
+                color=colors.l_red
+            )
+            await ctx.reply(embed=em)
+        except Exception as e:
+            em = discord.Embed(
+                title="Error!",
+                description=f"```{e}```",
+                color=colors.l_red
+            )
+            await ctx.reply(embed=em)
 
 def setup(bot):
     bot.add_cog(Owner(bot))

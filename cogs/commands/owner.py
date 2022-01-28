@@ -183,7 +183,7 @@ class Owner(commands.Cog):
 
             em = discord.Embed(
                 title="Cog Reloaded",
-                description=f"cogs/{cog}",
+                description=f"cogs.{cog}",
                 color=colors.l_red
             )
             await ctx.reply(embed=em)
@@ -203,7 +203,7 @@ class Owner(commands.Cog):
 
             em = discord.Embed(
                 title="Cog Loaded",
-                description=f"cogs/{cog}",
+                description=f"cogs.{cog}",
                 color=colors.l_red
             )
             await ctx.reply(embed=em)
@@ -223,7 +223,7 @@ class Owner(commands.Cog):
 
             em = discord.Embed(
                 title="Cog unloaded",
-                description=f"cogs/{cog}",
+                description=f"cogs.{cog}",
                 color=colors.l_red
             )
             await ctx.reply(embed=em)

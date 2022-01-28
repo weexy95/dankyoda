@@ -12,9 +12,11 @@ currency = config['economy']['currency_symbol']
 
 
 def monetize(number: int):
-	number = round(number)
 	monetized = babel.numbers.format_currency(number, '', locale='en_CA')[:-3]
-	return f"{currency} {monetized}"
+	try:
+		return f"{currency} {monetized}"
+	except:
+		return f"{currency} {number}"
 
 
 def richness(pocket, bank):

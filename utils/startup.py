@@ -37,7 +37,7 @@ def load_commands(bot):
 
 
 def load_events(bot):
-	blacklisted_cogs = []
+	blacklisted_cogs = ["on_command_error"]
 	events_dir = "cogs/events/"
 
 	for cog in os.listdir(events_dir):

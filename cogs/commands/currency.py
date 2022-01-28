@@ -7,6 +7,7 @@ from utils.economy import EconomyUser
 import babel.numbers
 
 config = startup.get_config()
+status = startup.get_status()
 currency_name = config['economy']['currency_name']
 currency = config['economy']['currency_symbol']
 
@@ -21,17 +22,16 @@ def monetize(number: int):
 
 def richness(pocket, bank):
 	total = pocket + bank
-	money_list = config['richness']['money'].keys()
+	money_list = status['money'].keys()
 
 	for x in money_list:
 		amt = int(x)
-		# print(f"total: {total}, amt: {amt}")
 		if amt == total or total < amt:
-			return config['richness']['money'][x]
+			return status['money'][x]
 		else:
 			continue
 
-	return config['richness']['infinite_money']
+	return status['infinite_money']
 
 
 class Currency(commands.Cog):

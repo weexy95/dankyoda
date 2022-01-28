@@ -14,6 +14,15 @@ def get_config():
 			return json.load(file)
 
 
+def get_status():
+	if not os.path.isfile("data/status.json"):
+		exit("'config.json' not found! Please add it and try again.")
+
+	else:
+		with open("data/status.json") as file:
+			return json.load(file)
+
+
 def load_commands(bot):
 	blacklisted_cogs = []
 	commands_dir = "cogs/commands/"

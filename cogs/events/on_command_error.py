@@ -1,3 +1,4 @@
+import io
 import json
 import random
 import traceback
@@ -141,11 +142,14 @@ class ErrorHandling(commands.Cog):
 
 
 		else:
-			await ctx.reply(embed=discord.Embed(
-				title="Something went Wrong!!",
-				description="An error occurred that I wasn't able to handle myself. This has been conveyed to my developer.",
-				color=discord.Color.brand_red()
-			))
+			await ctx.reply(
+				embed=discord.Embed(
+					title="Something went Wrong!!",
+					description="An error occurred that I wasn't able to handle myself. This has been conveyed to my developer.",
+					color=discord.Color.brand_red()
+				)
+			)
+
 			channel = self.client.get_channel(self.config['err_channel'])
 
 			em = discord.Embed(title='Error', color=0xFF3E3E)
@@ -156,8 +160,16 @@ class ErrorHandling(commands.Cog):
 			em.add_field(name='User:', value=f"{ctx.author.mention}", inline=False)
 
 			view = discord.ui.View()
-			as_bytes = map(str.encode, str(traceback.format_exc()))
-			content = b"".join(as_bytes)
+
+			error = traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)
+			error = ''.join(error)
+
+			if error.endswith('Missing Permissions'):
+				try:
+					return await ctx.send('I am missing permissions in order to run this command. I cannot identify the correct one.')
+				except discord.errors.Forbidden:
+					return
+
 
 			try:
 				link = await ctx.channel.create_invite(
@@ -166,11 +178,15 @@ class ErrorHandling(commands.Cog):
 				)
 				invite_butt = discord.ui.Button(label="Visit server", url=link.url)
 				view.add_item(invite_butt)
+
 			except discord.HTTPException or discord.NotFound:
 				invite_butt = discord.ui.Button(label="Can't create invite", disabled=True)
 				view.add_item(invite_butt)
 
-			await channel.send(embed=em, view=view, file=discord.File(BytesIO(content), "traceback.log"))
+			if len(error) < 1850:
+				await channel.send(f"```{error}```", embed=em)
+			else:
+				await channel.send(file=discord.File(fp=io.BytesIO(error.encode(errors='ignore')), filename='error.log'), embed=em)
 
 
 def setup(client):

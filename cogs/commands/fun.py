@@ -149,7 +149,7 @@ class Fun(commands.Cog):
 		meme_view = discord.ui.View(timeout=15)
 		next_meme = discord.ui.Button(label="Next meme!", style=discord.ButtonStyle.green)
 		next_meme.callback = next_meme_callback
-		close_view = discord.ui.Button(emoji="<:x_white:930381127535984641>", style=discord.ButtonStyle.danger)
+		close_view = discord.ui.Button(label="Close", style=discord.ButtonStyle.danger)
 		close_view.callback = close_meme_view
 		meme_view.add_item(next_meme)
 		meme_view.add_item(close_view)

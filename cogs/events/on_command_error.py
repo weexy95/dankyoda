@@ -1,6 +1,8 @@
 import json
 import random
+import traceback
 
+from io import BytesIO
 import discord
 from discord.ext import commands
 
@@ -62,7 +64,7 @@ class ErrorHandling(commands.Cog):
 			not_found = [
 				"What are you talking about??\n\nNo such person exists on this server...",
 				"I searched through the deepest places of this server and still\nI couldn't find the person you mentioned",
-				"Welp, this person is doesn't exist in this server."
+				"Welp, this person doesn't exist in this server."
 			]
 			em = discord.Embed(
 				description=random.choice(not_found),
@@ -148,14 +150,15 @@ class ErrorHandling(commands.Cog):
 
 			em = discord.Embed(title='Error', color=0xFF3E3E)
 
-			em.add_field(name='Command', value=ctx.command, inline=False)
-			em.add_field(name='Error:', value=f"```{type(error)}\n{error}```", inline=False)
-			em.add_field(name='Server:', value=f"{ctx.guild} ({ctx.guild.id})", inline=False)
-			em.add_field(name='Channel:', value=f"{ctx.channel} ({ctx.channel.id})", inline=False)
-			em.add_field(name='User:', value=f"{ctx.author} ({ctx.author.id})", inline=False)
-			em.add_field(name='Message:', value=ctx.message.content)
+			em.add_field(name='Message:', value=f"<:reply:935420231185215509>`{ctx.message.content}`", inline=False)
+			em.add_field(name='Error:', value=f"```{error}```", inline=False)
+			em.add_field(name='Server:', value=f"<:reply:935420231185215509>guild-`{ctx.guild}`, channel-`#{ctx.channel}`", inline=False)
+			em.add_field(name='User:', value=f"{ctx.author.mention}", inline=False)
 
 			view = discord.ui.View()
+			as_bytes = map(str.encode, str(traceback.format_exc()))
+			content = b"".join(as_bytes)
+
 			try:
 				link = await ctx.channel.create_invite(
 					temporary=True,
@@ -167,7 +170,7 @@ class ErrorHandling(commands.Cog):
 				invite_butt = discord.ui.Button(label="Can't create invite", disabled=True)
 				view.add_item(invite_butt)
 
-			await channel.send(embed=em, view=view)
+			await channel.send(embed=em, view=view, file=discord.File(BytesIO(content), "traceback.log"))
 
 
 def setup(client):

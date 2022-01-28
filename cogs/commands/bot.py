@@ -17,6 +17,24 @@ class Bot(Cog):
 		self.bot = bot
 		self.config = get_config()
 
+	@commands.command(name='ping', help="Shows the bot's ping/latency")
+	async def ping(self, ctx):
+		latency = round(self.bot.latency * 1000)
+		if 10 < latency < 30:
+			color = colors.l_green
+		elif 30 < latency < 150:
+			color = colors.l_yellow
+		else:
+			color = colors.l_red
+
+		em = discord.Embed(
+			title='Pong!',
+			description=f"`{latency}`ms",
+			color=color
+		)
+		await ctx.reply(embed=em, mention_author=False)
+
+
 	def get_all_command(self):
 		aliases = {}
 		for command in self.bot.commands:
@@ -24,6 +42,68 @@ class Bot(Cog):
 			for i in command.aliases:
 				aliases[f'{i}'] = str(command)
 		return aliases
+
+	def check_field(ctx, cog, bot):
+		cog = cog.lower()
+		if cog == "owner":
+			if ctx.author.id not in bot.owner_ids:
+				return False
+		if cog == "help":
+			return False
+		return True
+
+	def get_working_cogs(author, bot, auto=False):
+		cogs = []
+		if auto:
+			for cog in os.listdir("cogs/commands/"):
+				if cog.endswith(".py"):
+					cog = cog[:-3]
+					cog_name = cog.capitalize()
+					cogs.append(cog_name)
+		else:
+			cogs = ["Currency", "Fun", "Bot"]
+		return cogs
+
+	def decorate(command):
+		if command.usage is None or command.usage == '':
+			return f"```{command} {command.usage}```"
+		else:
+			args = []
+
+			for key, value in command.params.items():
+				if key not in ("self", "ctx"):
+					if "None" in str(value) or "No reason provided" in str(value):
+						args.append(f"[{key}]")
+					else:
+						args.append(f"<{key}>")
+
+			args = " ".join(args)
+
+			return f"```{command} {args}```"
+
+	async def cmd_help(ctx, command):  # Makes the embed
+		aliases = f'`{command}`'
+
+		for alias in command.aliases:
+			aliases += f', `{alias}`'
+
+		help = command.description
+
+		if help is None:
+			help = command.help
+
+			if help is None:
+				help = 'No help text provided by developer'
+
+		em = discord.Embed(title=f"{command} info ", )
+
+		em.add_field(name='Description:', value=f"*{help}*", inline=False)
+		em.add_field(name='Usage:', value=decorate(command), inline=False)
+		em.add_field(name='Aliases:', value=aliases, inline=False)
+		em.set_footer(text="Usage Syntax: <required> [optional]")
+
+		await ctx.send(embed=em)
+
 
 	@commands.command(name="help", aliases=['h'], usage="[command/category]", help="Get help on a command or the Bot!")
 	async def help(self, ctx, *, command_name=''):
@@ -146,69 +226,7 @@ class Bot(Cog):
 			message = await paginate_(msg_embed, view)
 
 
-def check_field(ctx, cog, bot):
-	cog = cog.lower()
-	if cog == "owner":
-		if ctx.author.id not in bot.owner_ids:
-			return False
-	if cog == "help":
-		return False
-	return True
 
-
-def get_working_cogs(author, bot, auto=False):
-	cogs = []
-	if auto:
-		for cog in os.listdir("cogs/commands/"):
-			if cog.endswith(".py"):
-				cog = cog[:-3]
-				cog_name = cog.capitalize()
-				cogs.append(cog_name)
-	else:
-		cogs = ["Currency", "Fun", "Bot"]
-	return cogs
-
-
-def decorate(command):
-	if command.usage is None or command.usage == '':
-		return f"```{command} {command.usage}```"
-	else:
-		args = []
-
-		for key, value in command.params.items():
-			if key not in ("self", "ctx"):
-				if "None" in str(value) or "No reason provided" in str(value):
-					args.append(f"[{key}]")
-				else:
-					args.append(f"<{key}>")
-
-		args = " ".join(args)
-
-		return f"```{command} {args}```"
-
-
-async def cmd_help(ctx, command):  # Makes the embed
-	aliases = f'`{command}`'
-
-	for alias in command.aliases:
-		aliases += f', `{alias}`'
-
-	help = command.description
-
-	if help is None:
-		help = command.help
-
-		if help is None:
-			help = 'No help text provided by developer'
-
-	em = discord.Embed(title=f"{command} info ",)
-
-	em.add_field(name='Description:', value=f"*{help}*", inline=False)
-	em.add_field(name='Usage:', value=decorate(command), inline=False)
-	em.add_field(name='Aliases:', value=aliases, inline=False)
-	em.set_footer(text="Usage Syntax: <required> [optional]")
-
-	await ctx.send(embed=em)
 
 
 def setup(bot):

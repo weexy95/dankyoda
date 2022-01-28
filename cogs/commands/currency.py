@@ -127,14 +127,14 @@ class Currency(commands.Cog):
 
 		if chances < 35:
 			percent_stolen = random.randint(20, 100)
-			amount = round((percent_stolen * robee.wallet) / 100)
+			amount = round((percent_stolen * robber.wallet) / 100)
 
 			if amount < 500:
 				amount = 500
 
 			em = discord.Embed(
 				title=f"You stole {percent_stolen}% of {user.display_name}'s {currency_name}",
-				description=f"You now have `{robber.wallet + amount} {currency}` and {user.display_name} has `{robee.wallet - amount} {currency}`"
+				description=f"You now have `{monetize(robber.wallet + amount)}` and {user.display_name} has `{monetize(robee.wallet - amount)}`"
 			)
 			await ctx.reply(embed=em, mention_author=False)
 
@@ -151,13 +151,13 @@ class Currency(commands.Cog):
 
 		else:
 			percent_stolen = random.randint(20, 100)
-			amount = round((percent_stolen * robee.wallet) / 100)
+			amount = round((percent_stolen * robber.wallet) / 100)
 
 			if amount < 500:
 				amount = 500
 
 			em = discord.Embed(
-				description=f"You entered {user.display_name}'s house and tried to rob them but they beat the shit out of you and you had to pay them {amount} {currency} in order to get away. Sucks to be you LOL"
+				description=f"You entered {user.display_name}'s house and tried to rob them but they beat the shit out of you and you had to pay them {monetize(amount)} in order to get away. Sucks to be you LOL"
 			)
 			await ctx.reply(embed=em, mention_author=False)
 			robber.update_balance(wallet=(-amount))
@@ -184,7 +184,7 @@ class Currency(commands.Cog):
 		user.update_balance(wallet=(-amount), bank=amount)
 		em = discord.Embed(
 			title="Deposited your money in the bank",
-			description=f"**Your wallet balance**: {user.wallet - amount} {currency}\n**Your bank balance**: {user.bank + amount} {currency}"
+			description=f"**Your wallet balance**: `{monetize(user.wallet - amount)}`\n**Your bank balance**: `{monetize(user.bank + amount)}`"
 		)
 		await ctx.reply(embed=em, mention_author=False)
 
@@ -209,7 +209,7 @@ class Currency(commands.Cog):
 		user.update_balance(wallet=amount, bank=(-amount))
 		em = discord.Embed(
 			title="Withdrawn your money in the bank",
-			description=f"**Your wallet balance**: {user.wallet + amount} {currency}\n**Your bank balance**: {user.bank - amount} {currency}"
+			description=f"**Your wallet balance**: `{monetize(user.wallet + amount)}`\n**Your bank balance**: `{monetize(user.bank - amount)}`"
 		)
 		await ctx.reply(embed=em, mention_author=False)
 

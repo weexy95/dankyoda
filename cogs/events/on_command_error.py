@@ -113,7 +113,7 @@ class ErrorHandling(commands.Cog):
 		elif isinstance(error, commands.BadArgument):
 			em = discord.Embed(
 				title="Invalid arguments!", color=discord.Color.brand_red(),
-				description=f"I think you used the command wrong. For more info, try running: ```plz {ctx.guild.id}help {ctx.command}```"
+				description=f"I think you used the command wrong. For more info, try running: ```plz help {ctx.command}```"
 			)
 			await ctx.send(embed=em)
 			ctx.command.reset_cooldown(ctx)

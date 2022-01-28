@@ -12,8 +12,8 @@ currency = config['economy']['currency_symbol']
 
 
 def monetize(number: int):
-	monetized = babel.numbers.format_currency(number, '', locale='en_CA')[:-3]
 	try:
+		monetized = babel.numbers.format_currency(number, '', locale='en_CA')[:-3]
 		return f"{currency} {monetized}"
 	except:
 		return f"{currency} {number}"

@@ -22,7 +22,7 @@ class Owner(commands.Cog):
     @commands.group(name="cval", help="eval, but lol its for - currency", invoke_without_command=True)
     @commands.is_owner()
     async def economy_eval(self, ctx):
-        await ctx.reply("Commands:\ncreate_account\nget_wallet\nget_bank\nget_level\nget_passive_status\nget_ban_status\nupdate_balance\nupdate_level\nupdate_status")
+        await ctx.reply("Commands:\ncreate_account\nget_wallet\nget_bank\nget_level\nget_passive_status\nget_ban_status\nset_balance\nupdate_balance\nupdate_level\nupdate_status")
 
     @economy_eval.command(name='create_account')
     async def create_account(self, ctx, user: discord.User):

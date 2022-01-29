@@ -1,0 +1,56 @@
+{
+  "0001": {
+    "name": "Helper",
+    "salary": [5000, 15000],
+    "bonus": [50000, 69000, null],
+    "salary_type": "range",
+    "fails": 7,
+    "afk": 14,
+    "description": "Be a good citizen, help other people and earn sweet money!",
+    "details": "Help people as much as you can, and they might give you some money! There can also be times that you don't get money and sometimes, you get huge rewards!"
+    "reward_items": [],
+    "promotion_requirement": [15, 3],
+    "promotion": 1000,
+    "chances": {
+      "item": 0,
+      "bonus": 5,
+      "ghosted": 15
+    }
+  },
+  "0002": {
+    "name": "Salesman",
+    "salary": [-1000, 20000],
+    "bonus": [50000, 95000, null],
+    "salary_type": "50-50",
+    "fails": 8,
+    "afk": 7,
+    "description": "Become a lawyer, advice and represent your clients in legal matters!",
+    "details": "Become a lawyer, advice and represent your clients in legal matters. You might even get your hands on big cases! although ghosting will be no less...",
+    "reward_items": [],
+    "promotion_requirement": [15, 3],
+    "promotion": 1000,
+    "chances": {
+      "item": 0,
+      "bonus": 15,
+      "ghosted": 25
+    }
+  },
+  "0003": {
+    "name": "Lawyer",
+    "salary": [500, 35000],
+    "bonus": [50000, 95000, null],
+    "salary_type": "random-range",
+    "fails": 5,
+    "afk": 7,
+    "description": "Become a lawyer, advice and represent your clients in legal matters!",
+    "details": "Become a lawyer, advice and represent your clients in legal matters. You might even get your hands on big cases! although ghosting will be no less...",
+    "reward_items": [],
+    "promotion_requirement": [30, 3],
+    "promotion": 3000,
+    "chances": {
+      "item": 0,
+      "bonus": 15,
+      "ghosted": 25
+    }
+  }
+}

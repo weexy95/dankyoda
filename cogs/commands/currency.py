@@ -39,19 +39,18 @@ class Currency(commands.Cog):
 		self.bot = bot
 
 
-	@commands.command(name='balance', aliases=['bal'], help="Get your/user's balance", usage="[user]")
+	@commands.command(name='balance', aliases=['bal'], help="Get your/user's balance", usage="[user]",
+	                  description=f"This command's use is to check the balance in your account. It shows the amount of {currency_name} you have in your pocket/wallet and in your bank. If any user is mentioned after the command, the mentioned user's balance will be shown.")
 	@commands.cooldown(1, 5, commands.BucketType.user)
 	async def balance(self, ctx, user: discord.Member = None):
 		if user is None:
 			user = ctx.author
-			person = economy.EconomyUser(user)
-			if person.banned:
-				return
 
-		person = economy.EconomyUser(user)
+		person = economy.EconomyUser(user, ctx)
 
 		if person.banned:
 			await ctx.reply("That person is banned from using my currency features.", mention_author=False)
+			return
 
 
 		em = discord.Embed(
@@ -64,11 +63,12 @@ class Currency(commands.Cog):
 		await ctx.reply(embed=em, mention_author=False)
 
 
-	@commands.command(name='give', aliases=['share'], help=f"Share your {currency_name} with your friends", usage="<user> <amount>")
+	@commands.command(name='give', aliases=['share'], help=f"Share your {currency_name} with your friends", usage="<user> <amount>",
+	                  description=f"This command can be used to share your precious {currency} {currency_name} with other people. This command can only be run if your account is at least 5 days old.")
 	@commands.cooldown(1, 10, commands.BucketType.user)
 	async def share_coins(self, ctx, user: discord.User, amount: int):
-		giver = economy.EconomyUser(ctx.author)
-		receiver = economy.EconomyUser(user)
+		giver = economy.EconomyUser(ctx.author, ctx)
+		receiver = economy.EconomyUser(user, ctx)
 
 		if receiver.banned:
 			await ctx.reply("That person is banned from using me, mention somebody else", mention_author=False)
@@ -104,35 +104,36 @@ class Currency(commands.Cog):
 		await ctx.reply(embed=em, mention_author=False)
 
 
-	@commands.command(name='rob', aliases=['steal'], help=f"Rob some {currency_name} from someone", usage="<user>")
+	@commands.command(name='rob', aliases=['steal'], help=f"Rob some {currency_name} from someone", usage="<user>",
+	                  description="Rob other player's money. This is totally based on your luck and experience, You can use power-ups to boost your chances of stealing. You can only steal money from the pocket and the money in the bank will remain un-touched!")
 	@commands.cooldown(1, 30, commands.BucketType.user)
 	async def rob(self, ctx, user: discord.Member):
-		robber = economy.EconomyUser(ctx.author)
-		robee = economy.EconomyUser(user)
+		robber = economy.EconomyUser(ctx.author, ctx)
+		innocent = economy.EconomyUser(user, ctx)
 
 		if robber.banned:
 			return
 
-		if robee.banned:
-			await ctx.reply("That person has been banned from using my currency features.")
+		if innocent.banned:
+			await ctx.reply("**That person has been banned from using my currency features.**")
 
-		if robber.wallet < 1000:
-			await ctx.reply(f"You need atleast 1000 {currency} in order to rob someone. How are you gonna bribe the neighbours to keep their mouths shut?")
+		if robber.wallet < 2000:
+			await ctx.reply(embed=discord.Embed(title=f"You need at least `{currency} 2,000` in order to rob someone.", description="How are you gonna bribe the neighbours to keep their mouths shut?", color=discord.Color.purple()))
 			return
 
 		if user == ctx.author:
-			await ctx.reply("You must be crazy if you're trying to rob yourself.", mention_author=False)
+			await ctx.reply("Are you okay? why do you want to rob yourself?", mention_author=robber.mentions)
 			return
 
 		if user.bot:
-			await ctx.reply("Hey! You think it's cool to rob from poor helpless bots?", mention_author=False)
+			await ctx.reply("It's not cool to rob from poor helpless bots!", mention_author=False)
 			return
 
-		if robee.passive:
+		if innocent.passive:
 			await ctx.reply("That monk is in passive mode. Leave him alone.", mention_author=False)
 			return
 
-		if robee.wallet < 500:
+		if innocent.wallet < 500:
 			await ctx.reply(f"They're too poor. You should give them {currency_name}", mention_author=False)
 			return
 
@@ -147,12 +148,12 @@ class Currency(commands.Cog):
 
 			em = discord.Embed(
 				title=f"You stole {percent_stolen}% of {user.display_name}'s {currency_name}",
-				description=f"You now have `{monetize(robber.wallet + amount)}` and {user.display_name} has `{monetize(robee.wallet - amount)}`"
+				description=f"You now have `{monetize(robber.wallet + amount)}` and {user.display_name} has `{monetize(innocent.wallet - amount)}`"
 			)
 			await ctx.reply(embed=em, mention_author=False)
 
 			robber.update_balance(wallet=amount)
-			robee.update_balance(wallet=(-amount))
+			innocent.update_balance(wallet=(-amount))
 			return
 
 		elif 35 < chances < 50:
@@ -174,13 +175,14 @@ class Currency(commands.Cog):
 			)
 			await ctx.reply(embed=em, mention_author=False)
 			robber.update_balance(wallet=(-amount))
-			robee.update_balance(wallet=amount)
+			innocent.update_balance(wallet=amount)
 
 
-	@commands.command(name='deposit', aliases=['dep'], help=f"Deposit your precious {currency_name} in the bank", usage="[amount]")
-	@commands.cooldown(1, 3, commands.BucketType.user)
+	@commands.command(name='deposit', aliases=['dep'], help=f"Deposit your precious {currency_name} in the bank", usage="[amount]",
+	                  description=f"Deposit your precious {currency} {currency_name} in the bank to prevent them getting robbed, you also need to be aware of the scams and frauds. bank's capacity can be increased by using bank-codes.")
+	@commands.cooldown(1, 5, commands.BucketType.user)
 	async def deposit(self, ctx, amount: int = None):
-		user = economy.EconomyUser(ctx.author)
+		user = economy.EconomyUser(ctx.author, ctx)
 		if user.banned:
 			return
 
@@ -202,10 +204,11 @@ class Currency(commands.Cog):
 		await ctx.reply(embed=em, mention_author=False)
 
 
-	@commands.command(name='withdraw', aliases=['with'], help=f"Withdraw your {currency_name} from the bank",usage="[amount]")
-	@commands.cooldown(1, 3, commands.BucketType.user)
+	@commands.command(name='withdraw', aliases=['with'], help=f"Withdraw your {currency_name} from the bank", usage="[amount]",
+	                  description="Withdraw money from your bank. there will also be a risk of getting robbed if you are not attentive.")
+	@commands.cooldown(1, 5, commands.BucketType.user)
 	async def withdraw(self, ctx, amount: int = None):
-		user = economy.EconomyUser(ctx.author)
+		user = economy.EconomyUser(ctx.author, ctx)
 		if user.banned:
 			return
 
@@ -227,10 +230,11 @@ class Currency(commands.Cog):
 		await ctx.reply(embed=em, mention_author=False)
 
 
-	@commands.command(name="hourly", help="Get your free hourly rewards", usage="")
+	@commands.command(name="hourly", help="Get your free hourly rewards",
+	                  description=f"Get some free {currency} {currency_name} every hour. this amount increases with your net-worth.")
 	@commands.cooldown(1, 3600, commands.BucketType.user)
 	async def hourly(self, ctx):
-		user = EconomyUser(ctx.author)
+		user = EconomyUser(ctx.author, ctx)
 
 		if user.banned:
 			return
@@ -244,10 +248,11 @@ class Currency(commands.Cog):
 		await ctx.reply(embed=em, mention_author=False)
 
 
-	@commands.command(name="daily", help="Get your free daily rewards", usage="")
+	@commands.command(name="daily", help="Get your free daily rewards",
+	                  description=f"Get some free {currency} {currency_name} every hour. this amount increases with your net-worth.")
 	@commands.cooldown(1, 3600*24, commands.BucketType.user)
 	async def daily(self, ctx):
-		user = EconomyUser(ctx.author)
+		user = EconomyUser(ctx.author, ctx)
 
 		if user.banned:
 			return
@@ -259,6 +264,15 @@ class Currency(commands.Cog):
 			description=f"You received `{currency} 12,000`"
 		)
 		await ctx.reply(embed=em, mention_author=False)
+
+
+	@commands.command(name="jobs", help="Get a list of jobs or information on a job.", usage='[job name]', aliases=['job', 'works'],
+	                  description="Get a list of available jobs or view details of a certain job!")
+	async def jobs(self, ctx, *, job_name=None):
+		if job_name is not None:
+			return
+
+		await ctx.reply("this command is under maintainence")
 
 
 def setup(bot):

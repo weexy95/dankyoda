@@ -188,7 +188,7 @@ class ErrorHandling(commands.Cog):
 				view.add_item(invite_butt)
 
 			if len(error) < 1850:
-				await channel.send(f"```{error}```", embed=em)
+				await channel.send(f"```accesslog\n{error}```", embed=em)
 			else:
 				await channel.send(file=discord.File(fp=io.BytesIO(error.encode(errors='ignore')), filename='error.log'), embed=em)
 

@@ -9,6 +9,9 @@ from utils.startup import get_config
 from utils import colors
 
 
+config = get_config()
+
+
 def check_field(ctx, cog, bot):
 	cog = cog.lower()
 	if cog == "owner":
@@ -34,7 +37,7 @@ def get_working_cogs(author, bot, auto=False):
 
 def decorate(command):
 	if command.usage is None or command.usage == '':
-		return f"```{command} {command.usage}```"
+		return f"```{config['bot_prefix']}{command} {command.usage}```"
 	else:
 		args = []
 
@@ -64,9 +67,9 @@ async def cmd_help(ctx, command):  # Makes the embed
 		if help is None:
 			help = 'No help text provided by developer'
 
-	em = discord.Embed(title=f"{command} info ",)
+	em = discord.Embed(title=f"{command} info ",color=discord.Color.purple())
 
-	em.add_field(name='Description:', value=f"*{help}*", inline=False)
+	em.add_field(name='Description:', value=f"{help}    ", inline=False)
 	em.add_field(name='Usage:', value=decorate(command), inline=False)
 	em.add_field(name='Aliases:', value=aliases, inline=False)
 	em.set_footer(text="Usage Syntax: <required> [optional]")

@@ -5,14 +5,39 @@ from db import *
 
 
 class EconomyUser:
-    def __init__(self, user: discord.User):
+    def __init__(self, user: discord.User, ctx):
+        self.info = self.userinfo(user.id)
+
         self.user = user
+        self.ctx = ctx
         self.wallet = round(self.get_wallet())
         self.bank = round(self.get_bank())
         self.level = round(self.get_level())
         self.passive = round(self.get_passive_status())
         self.banned = round(self.get_ban_status())
+        self.mentions = False
 
+
+    def userinfo(self, userid) -> dict:
+        data = {}
+
+        db.execute(f"SELECT * FROM userdata WHERE user_id = '{userid}';")
+        info = get_all_data(db)
+
+        data['wallet'] = info[0]
+        data['bank'] = info[1]
+        data['level'] = info[2]
+        data['passive'] = info[3]
+        data['is_banned'] = info[4]
+
+        print(f"type - {type(info[0])} \ndata: {info[0]}")
+
+        if info is None:
+            new_acc = self.create_account()
+            if new_acc:
+                return self.userinfo(userid)
+
+        return data
 
     def create_account(self):
         try:
